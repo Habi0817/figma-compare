@@ -1,0 +1,6 @@
+{
+  "url": "http://localhost:3000",
+  "viewport": { "width": 1440, "height": 900 },
+  "maskSelectors": [],
+  "readySelector": ""
+}

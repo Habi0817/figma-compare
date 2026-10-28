@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Figma 設計稿與網頁截圖的本機視覺比對工具。離線操作、無 CDN、圖片不上傳。">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src blob: data:; connect-src 'none'; font-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Framecheck｜設計與網頁比對工具</title>
+<style>:root{--bg:#f5f6f3;--surface:#fff;--ink:#242d29;--muted:#79817b;--line:#e3e7e1;--green:#326653;--green-soft:#eaf1e9;--pink:#ec476a;--orange:#d48149;--radius:13px;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","Microsoft JhengHei",sans-serif;color:var(--ink);background:var(--bg);font-synthesis:none}*{box-sizing:border-box}body{margin:0;font-size:14px;line-height:1.5}button,input,select,textarea{font:inherit}button,a,input,select,textarea{touch-action:manipulation}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.4}button{transition:background .15s,color .15s,box-shadow .15s}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible,.drop-label:focus-within{outline:3px solid #92bba4;outline-offset:3px}button:hover:not(:disabled){filter:brightness(.97)}[hidden]{display:none!important}h1,h2,h3,p{margin:0}.topbar{height:78px;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 40px;gap:28px;background:#fff}.brand{display:flex;gap:10px;align-items:center;font-size:27px;letter-spacing:-1.2px;font-weight:760;text-decoration:none;color:var(--ink)}.brand-dot{color:var(--green)}.brand-mark{position:relative;width:31px;height:32px}.brand-mark i{display:block;position:absolute;width:22px;height:22px;border:2px solid var(--green);border-radius:5px;left:0;top:1px}.brand-mark i+ i{left:8px;top:9px;background:var(--green);box-shadow:inset 0 0 0 5px #fff}.brand-subtitle{font-size:12px;color:var(--muted);padding-left:25px;border-left:1px solid var(--line)}.top-actions{margin-left:auto;display:flex;align-items:center;gap:25px}.privacy-badge{font-size:11px;color:var(--green);display:flex;align-items:center;gap:7px}.privacy-badge>span,.status-dot{width:6px;height:6px;display:inline-block;border-radius:50%;background:#77a27f}.text-button{background:none;border:0;padding:6px 0;color:var(--green);font-size:12px;font-weight:600}.text-button.small{font-size:11px}.text-button span{margin-left:4px}main{max-width:1600px;margin:0 auto;padding:34px 40px 0}.page-heading{display:flex;align-items:center;justify-content:space-between;margin-bottom:30px}.eyebrow{font-size:10px;letter-spacing:2px;color:var(--muted);font-weight:650;margin-bottom:9px}h1{font-size:27px;letter-spacing:.1px;font-weight:650}.page-heading p{font-size:12px;color:var(--muted);margin-top:8px}.button{border:1px solid var(--line);border-radius:7px;padding:10px 15px;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:12px;line-height:1.5;font-weight:600;white-space:nowrap}.button.primary{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 2px 3px #244c3010}.button.secondary{background:#fff;color:#47534c}.button.wide{width:100%}.workflow-tabs{display:flex;border-bottom:1px solid var(--line);gap:30px;margin-bottom:24px}.workflow-tabs>button{background:none;border:0;border-bottom:2px solid transparent;padding:0 0 15px;display:flex;align-items:center;gap:9px;color:var(--muted);font-size:14px;font-weight:600;margin-bottom:-1px}.workflow-tabs>button[aria-selected=true]{color:var(--green);border-bottom-color:var(--green)}.step-letter{border:1px solid #d9ded7;display:inline-grid;place-items:center;width:23px;height:23px;border-radius:5px;font-size:11px;font-weight:700}.workflow-tabs [aria-selected=true] .step-letter{background:var(--green);color:#fff;border-color:var(--green)}.tab-note{font-size:11px;font-weight:400;margin-left:5px;color:#8d948f}.workspace-grid{display:grid;grid-template-columns:260px minmax(0,1fr);gap:24px;align-items:start}.sidebar{padding:20px;background:#fff;border:1px solid var(--line);border-radius:var(--radius)}.section-heading{display:flex;align-items:center;justify-content:space-between;margin-bottom:17px;gap:8px}.section-heading h2{font-size:13px;font-weight:650}.small-label{font-size:8px;font-weight:600;letter-spacing:1.3px;color:#929a91}.upload-card{border:1px dashed #d6dcd3;border-radius:9px;padding:12px;position:relative;overflow:hidden;margin-bottom:12px;transition:background .15s,border-color .15s}.upload-card.drag-over{border-color:var(--green);background:var(--green-soft)}.upload-card.loaded{border-style:solid}.upload-top{display:flex;align-items:center;gap:7px;font-size:11px}.source-tag{display:inline-grid;place-items:center;background:#eef0f6;color:#6d7a9e;width:20px;height:20px;border-radius:4px;font-size:10px}.source-tag.green{background:#eaf1e9;color:var(--green)}.file-type{margin-left:auto;font-size:9px;color:#9aa096}.drop-label{cursor:pointer;display:flex;align-items:center;flex-direction:column;text-align:center;gap:4px;padding:17px 0 9px;position:relative;z-index:1;min-height:101px}.drop-label>span:not(.upload-icon){font-size:11px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.drop-label small{font-size:9px;color:var(--muted)}.upload-icon{font-size:25px;font-weight:300;line-height:26px;color:#7d9a83;margin-bottom:6px}.upload-card.loaded .drop-label{min-height:86px;padding-top:13px;padding-left:66px;align-items:flex-start;text-align:left}.upload-card.loaded .upload-icon{font-size:12px;line-height:15px;margin-bottom:0}.upload-card.loaded img{position:absolute;left:12px;top:53px;width:53px;height:62px;object-fit:cover;object-position:top;border:1px solid var(--line);border-radius:4px}.upload-tip{font-size:10px;color:#879184;line-height:1.7;margin:4px 0}.sidebar-divider{height:1px;background:var(--line);margin:21px 0}.field-label{display:block;font-size:11px;font-weight:550;margin:13px 0 7px}.sidebar select{width:100%;font-size:10px}select,input:not([type=range]):not([type=checkbox]):not([type=file]),textarea{border:1px solid var(--line);background:#fff;border-radius:6px;color:#47534c;padding:9px 10px;min-width:0}input[type=range]{width:100%;accent-color:var(--green);height:4px;cursor:pointer;display:block;margin:13px 0}input[type=checkbox]{accent-color:var(--green)}.range-heading{display:flex;justify-content:space-between;align-items:center;margin-top:20px;font-size:11px}.range-heading output{font-size:10px;color:var(--green);font-variant-numeric:tabular-nums}.field-help{font-size:10px;color:var(--muted);line-height:1.7}.region-tools{display:flex;gap:7px}.region-tools .button{flex:1;padding:8px;font-size:10px}.region-tools .button[aria-pressed=true]{color:var(--green);border-color:#88a696;background:var(--green-soft)}#toolHint{margin:10px 0}.no-region{font-size:10px;color:#929a91;padding:9px 0}.region-item{display:flex;align-items:center;gap:5px;margin-top:6px;padding:7px;border-radius:5px;background:#f4f6f2;font-size:10px}.region-item small{color:var(--muted);font-size:9px}.region-item button{margin-left:auto;border:0;background:none;color:#71796f;padding:0 3px;font-size:16px}.coordinate-details{margin-top:10px;font-size:10px;color:#7d877d}.coordinate-details summary{cursor:pointer}.coordinate-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:12px 0}.coordinate-grid label{font-size:10px}.coordinate-grid input{width:100%;margin-top:3px;font-size:11px;padding:5px!important}.review-column{min-width:0}.review-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}.canvas-toolbar{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--line);gap:10px}.view-tabs{display:flex;background:#f3f5f1;padding:3px;border-radius:7px;gap:2px}.view-tabs button{background:none;border:0;border-radius:5px;padding:7px 18px;font-size:11px;color:#8a9288}.view-tabs button[aria-pressed=true]{background:#fff;color:var(--green);box-shadow:0 1px 5px #26321a13;font-weight:650}.zoom-control{display:flex;align-items:center;gap:8px}.zoom-control label{font-size:10px;color:var(--muted)}.zoom-control select{font-size:10px;padding:7px;border-color:transparent;background:#fff}.mode-controls{padding:10px 19px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--line);font-size:10px}.mode-controls input{width:145px;margin:8px 0}.mode-controls output{font-variant-numeric:tabular-nums;color:var(--green)}.mode-help{margin-left:auto;color:var(--muted)}.dimension-notice{font-size:11px;color:#916a30;background:#fff7e7;padding:9px 17px;border-bottom:1px solid #f3e5cc}.canvas-viewport{height:486px;overflow:auto;position:relative;background-color:#f6f7f4;background-image:radial-gradient(#cdd5c8 0.6px,transparent .6px);background-size:13px 13px;padding:24px}.empty-state{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}.empty-illustration{position:relative;width:208px;height:142px;margin:0 0 20px}.mini-frame{width:116px;height:90px;background:#fff;border:1px solid #b6c7b7;border-radius:6px;position:absolute;padding:13px;box-shadow:0 7px 16px #5567440b}.mini-frame.back{left:20px;top:12px;transform:rotate(-8deg);opacity:.7}.mini-frame.front{right:12px;top:43px;transform:rotate(5deg)}.mini-frame div{background:#e5ece1;width:48px;height:8px;border-radius:2px;margin:0 0 10px}.mini-frame i{display:block;width:80px;background:#f0f2ed;height:4px;border-radius:2px;margin-bottom:5px}.mini-frame i+i{width:64px}.mini-frame b{display:block;width:30px;height:12px;background:#d0dfc9;border-radius:3px;margin-top:10px}.crosshair{position:absolute;right:7px;top:31px;font-size:25px;color:var(--green);font-weight:200;line-height:20px}.empty-state>.small-label{font-size:8px;letter-spacing:1.7px;margin:0 0 12px}.empty-state h2{font-size:18px;font-weight:550;letter-spacing:.3px}.empty-state p{font-size:11px;color:var(--muted);margin:10px 0 22px}.empty-state .text-button{font-size:10px;margin-top:12px}.image-stage{display:flex;gap:20px;align-items:flex-start;width:max-content;min-width:100%;justify-content:center}.image-stage figure{margin:0;flex-shrink:0}.image-stage figcaption{height:29px;font-size:10px;color:#747d70;display:flex;gap:7px;align-items:flex-start}.legend-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-top:4px}.legend-dot.design{background:#929cbe}.legend-dot.web{background:#5d8b6f}#canvasSize{margin-left:auto;font-size:9px;color:#a3aaa0;padding-left:12px}.image-wrap{position:relative;box-shadow:0 3px 12px #273a2110;line-height:0;touch-action:pan-x pan-y;background:#fff}.image-wrap canvas{display:block}.image-wrap svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}.image-wrap.drawing{cursor:crosshair;touch-action:none}.image-wrap.wiping{cursor:ew-resize;touch-action:none}.wipe-handle{position:absolute;top:0;bottom:0;width:2px;background:var(--green);pointer-events:none;filter:drop-shadow(0 0 2px white)}.wipe-handle span{position:absolute;top:46%;left:-14px;border:2px solid var(--green);background:#fff;color:var(--green);border-radius:30px;width:30px;height:30px;display:grid;place-items:center;font-size:16px;line-height:1}.canvas-footer{border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;padding:11px 17px;font-size:9px;color:#8b9486}.canvas-footer .status-dot{width:5px;height:5px;margin-right:5px}.results-row{display:grid;grid-template-columns:1.2fr 1fr 1fr;border:1px solid var(--line);border-radius:var(--radius);margin-top:16px;background:#fff;padding:19px 0}.metric{padding:0 24px;min-width:0}.metric+.metric{border-left:1px solid var(--line)}.metric>span{font-size:10px;color:#7d8779;display:flex;align-items:center;gap:6px}.info-dot{border:1px solid #a6b1a0;border-radius:50%;width:11px;height:11px;font:8px Georgia,serif;display:inline-grid;place-items:center}.metric strong{font-size:31px;letter-spacing:-1px;font-weight:550;display:block;line-height:1.45;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}.metric:first-child strong{color:var(--green)}.metric strong small{font-size:11px;letter-spacing:0;margin-left:5px;font-weight:400;color:#9ba494}.metric p{font-size:9px;color:#929b8b;line-height:1.6}.export-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:20px 0}.export-bar strong{font-size:12px;font-weight:550}.export-bar p{font-size:10px;color:var(--muted);margin-top:4px}.export-bar>div:last-child{display:flex;gap:8px}.approval-panel{border:1px solid var(--line);border-radius:9px;background:#fff;padding:14px 17px;font-size:11px}.approval-panel summary{cursor:pointer;font-weight:550}.approval-panel summary span{float:right;color:var(--green)}.approval-panel p{font-size:10px;color:var(--muted);margin:13px 0}.check-label{display:flex;gap:7px;align-items:center;font-size:11px}.approval-panel textarea{width:100%;margin-bottom:10px;resize:vertical}.workspace-note{font-size:10px;color:#8b9485;text-align:center;margin:22px 0}.workspace-note>span{margin-right:6px}.page-footer{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--line);padding:20px 0;color:#99a08f;font-size:9px}.page-footer>span:first-child{font-size:13px;font-weight:650;letter-spacing:-.4px}.page-footer>span:first-child>span{font-size:9px;font-weight:400;letter-spacing:0;margin-left:10px}.regression-intro{margin:29px 0}.regression-intro h2{font-size:24px;font-weight:600;margin-bottom:9px}.regression-intro p{font-size:12px;color:var(--muted)}.process-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:25px}.process-cards article{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:24px}.process-cards article>span{color:#8aa38b;font-size:12px;font-weight:600}.process-cards h3{font-size:15px;margin:12px 0 8px}.process-cards p{font-size:11px;color:var(--muted);margin:0 0 18px;max-width:290px}.process-cards code{font-size:11px;background:var(--green-soft);border-radius:4px;padding:5px 8px;color:var(--green)}.regression-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:30px}.setup-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:24px}.setup-card input,.setup-card textarea{width:100%;font-size:12px;resize:vertical}.setup-card .field-label{margin-top:20px}.two-fields{display:flex;gap:18px;margin-top:20px}.two-fields label{font-size:11px;flex:1;min-width:0}.two-fields input{margin-top:7px}.setup-card .wide{margin-top:18px}.setup-card .field-help{margin-top:8px}.code-file{font-size:10px;color:var(--muted)}.code-card pre{font-size:12px;line-height:1.8;white-space:pre-wrap;overflow-wrap:anywhere;padding:20px;border-radius:8px;background:#f2f5ef;color:#48634e;min-height:230px}.regression-note{font-size:11px;color:#667560;line-height:1.8}.regression-note p{margin:5px 0 17px;color:var(--muted);font-size:11px}dialog{border:1px solid var(--line);border-radius:16px;padding:28px;max-width:590px;width:calc(100% - 36px);color:var(--ink);box-shadow:0 20px 80px #20352822}dialog::backdrop{background:#24362a60;backdrop-filter:blur(3px)}.dialog-heading{display:flex;align-items:center;justify-content:space-between}.dialog-heading h2{font-size:20px;font-weight:600}.icon-button{background:none;border:0;font-size:25px;color:#8a9585;padding:0 3px}dialog ol{padding-left:24px;font-size:12px}dialog li{padding:10px 0 4px}dialog li p{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.8}.help-note{font-size:11px;padding:14px;background:#f2f5ef;border-radius:7px;color:#77846e;line-height:1.8;margin:15px 0}#toast{position:fixed;bottom:25px;left:50%;transform:translateX(-50%);background:#293e31;color:#fff;border-radius:9px;box-shadow:0 4px 20px #0002;padding:13px 22px;font-size:12px;z-index:50;max-width:calc(100vw - 32px);width:max-content}.visually-hidden{position:absolute!important;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.upload-card:focus-within{outline:2px solid #92bba4;outline-offset:3px}@media(min-width:1500px){.canvas-viewport{height:555px}.workspace-grid{grid-template-columns:280px minmax(0,1fr)}}@media(max-width:1100px){main{padding:25px 24px 0}.topbar{padding:0 24px}.brand-subtitle{display:none}.workspace-grid{grid-template-columns:230px minmax(0,1fr);gap:18px}.sidebar{padding:16px}.view-tabs button{padding:7px 12px}.metric{padding:0 15px}.metric strong{font-size:25px}.tab-note{display:none}.export-bar{align-items:flex-start;flex-wrap:wrap}.mode-help{display:none}}@media(max-width:760px){.topbar{height:65px;padding:0 18px}.brand{font-size:23px}.top-actions{gap:12px}.privacy-badge{font-size:0;gap:0}.privacy-badge>span{width:7px;height:7px}.text-button{font-size:11px}main{padding:24px 16px 0}.page-heading{gap:15px;align-items:flex-start;margin-bottom:25px}.page-heading h1{font-size:21px}.page-heading>.button{font-size:0;padding:8px 10px}.page-heading>.button>span{font-size:18px}.eyebrow{font-size:8px;letter-spacing:1.5px}.page-heading p{font-size:11px}.workflow-tabs{gap:20px}.workflow-tabs>button{font-size:12px;gap:7px}.workspace-grid{display:flex;flex-direction:column;gap:16px}.sidebar{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;padding:16px}.sidebar>.section-heading,.sidebar>.upload-tip,.sidebar>.sidebar-divider,.sidebar>.field-label,.sidebar>select,.sidebar>.range-heading,.sidebar>input,.sidebar>.field-help,.sidebar>.region-tools,.sidebar>.region-list,.sidebar>.coordinate-details{grid-column:1/-1}.sidebar>.section-heading{margin:0}.upload-card{margin:0;padding:10px}.upload-top{font-size:10px}.file-type{display:none}.upload-card.loaded .drop-label{padding-left:0;padding-top:72px;min-height:120px;align-items:center}.upload-card.loaded img{top:45px;left:calc(50% - 26px)}.sidebar-divider{margin:4px 0}.range-heading{margin-top:5px}.sidebar .field-label{margin:0}.sidebar input[type=range]{margin:5px 0}.sidebar .field-help{margin:0!important}.coordinate-details{margin-top:0}.review-column{width:100%}.canvas-toolbar{padding:10px;gap:5px}.view-tabs button{padding:7px 11px}.zoom-control{gap:0}.zoom-control label{display:none}.zoom-control select{font-size:10px;max-width:100px;padding:6px 0}.canvas-viewport{height:390px;padding:16px}.empty-state h2{font-size:15px}.empty-state p{font-size:10px}.empty-illustration{transform:scale(.85);margin-bottom:0}.canvas-footer{padding:10px;font-size:8px}#coordStatus{display:none}.results-row{padding:15px 0;grid-template-columns:1.2fr 1fr .85fr}.metric{padding:0 10px}.metric>span{font-size:9px}.metric strong{font-size:25px}.metric strong small{font-size:9px}.metric p{font-size:8px}.export-bar{padding:17px 0}.export-bar .button{font-size:11px}.page-footer>span:first-child>span{display:none}.workspace-note{font-size:9px;text-align:left;line-height:1.8}.regression-intro h2{font-size:20px}.process-cards{grid-template-columns:1fr;gap:10px}.process-cards article{padding:18px;display:grid;grid-template-columns:30px 1fr;gap:4px 8px}.process-cards h3{margin:0}.process-cards p,.process-cards code{grid-column:2}.process-cards p{margin:5px 0 9px;max-width:none}.process-cards code{width:max-content}.regression-grid{grid-template-columns:1fr;gap:16px}.setup-card{padding:20px}.section-heading .code-file{font-size:9px}.mode-controls{padding:10px}.mode-controls input{width:120px}}@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="#" aria-label="Framecheck 首頁"><span class="brand-mark"><i></i><i></i></span><span>framecheck<span class="brand-dot">.</span></span></a>
+  <span class="brand-subtitle">設計與實作之間，清楚看見差異。</span>
+  <div class="top-actions"><span class="privacy-badge"><span></span> 本機處理・圖片不上傳</span><button class="text-button" id="helpButton">使用指南 <span aria-hidden="true">↗</span></button></div>
+</header>
+<main>
+  <div class="page-heading"><div><div class="eyebrow">VISUAL REVIEW WORKSPACE</div><h1>把設計與實作，放在一起看。</h1><p>從首次驗收，到每一次安心的修改。</p></div><button class="button secondary" id="demoButton"><span aria-hidden="true">◉</span> 載入示範圖片</button></div>
+  <div class="workflow-tabs" role="tablist" aria-label="工作流程"><button role="tab" id="tabA" aria-selected="true" aria-controls="panelA"><span class="step-letter">A</span> 首次設計驗收 <span class="tab-note">Figma → 網頁</span></button><button role="tab" id="tabB" aria-selected="false" aria-controls="panelB" tabindex="-1"><span class="step-letter">B</span> 後續回歸測試 <span class="tab-note">已核准基準 → 新版本</span></button></div>
+  <section id="panelA" role="tabpanel" aria-labelledby="tabA">
+    <div class="workspace-grid">
+      <aside class="sidebar">
+        <div class="section-heading"><h2>比對來源</h2><span class="small-label">01 / IMPORT</span></div>
+        <div class="upload-card" id="dropA"><div class="upload-top"><span class="source-tag">A</span><strong>Figma 設計稿</strong><span class="file-type">參考圖</span></div><input type="file" id="fileA" accept="image/png,image/jpeg,image/webp" class="visually-hidden"><label for="fileA" class="drop-label"><span class="upload-icon" aria-hidden="true">＋</span><span id="nameA">選擇或拖放圖片</span><small id="metaA">PNG、JPG、WebP</small></label><img id="thumbA" alt="設計稿縮圖" hidden></div>
+        <div class="upload-card" id="dropB"><div class="upload-top"><span class="source-tag green">B</span><strong>實際網頁截圖</strong><span class="file-type">待驗收</span></div><input type="file" id="fileB" accept="image/png,image/jpeg,image/webp" class="visually-hidden"><label for="fileB" class="drop-label"><span class="upload-icon" aria-hidden="true">＋</span><span id="nameB">選擇或拖放圖片</span><small id="metaB">建議與設計稿相同尺寸</small></label><img id="thumbB" alt="網頁截圖縮圖" hidden></div>
+        <div class="upload-tip">Figma 請匯出 1× PNG；網頁截圖請使用相同的畫面尺寸。</div>
+        <div class="sidebar-divider"></div>
+        <div class="section-heading"><h2>比對設定</h2><span class="small-label">02 / ADJUST</span></div>
+        <label class="field-label" for="sizeMode">圖片尺寸</label><select id="sizeMode"><option value="original">原始像素・左上對齊</option><option value="width">網頁等比例縮放至設計稿寬度</option></select>
+        <div class="range-heading"><label for="threshold">像素色差容許值</label><output for="threshold" id="thresholdValue">16 / 255</output></div><input id="threshold" type="range" min="0" max="255" value="16"><p class="field-help">調高可略過細微色差；不會修正位置偏移。</p>
+        <div class="sidebar-divider"></div>
+        <div class="section-heading"><h2>比較範圍</h2><button class="text-button small" id="clearRegions" disabled>全部重設</button></div>
+        <div class="region-tools"><button class="button secondary" id="regionTool" aria-pressed="false" disabled><span aria-hidden="true">⌗</span> 框選區域</button><button class="button secondary" id="ignoreTool" aria-pressed="false" disabled><span aria-hidden="true">▧</span> 忽略區域</button></div>
+        <p id="toolHint" class="field-help">選取工具後，在圖片上拖曳矩形。Esc 取消。</p>
+        <div id="regionList" class="region-list"><p class="no-region">目前比對整張圖片</p></div>
+        <details class="coordinate-details"><summary>以座標新增區域</summary><div class="coordinate-grid"><label>X<input id="rectX" type="number" min="0" value="0"></label><label>Y<input id="rectY" type="number" min="0" value="0"></label><label>寬<input id="rectW" type="number" min="1" value="100"></label><label>高<input id="rectH" type="number" min="1" value="100"></label></div><div class="region-tools"><button id="addRegion" class="button secondary" disabled>設為範圍</button><button id="addIgnore" class="button secondary" disabled>加入忽略</button></div></details>
+      </aside>
+      <div class="review-column">
+        <div class="review-card">
+          <div class="canvas-toolbar"><div class="view-tabs" role="group" aria-label="檢視模式"><button data-mode="side" aria-pressed="true">並排</button><button data-mode="overlay" aria-pressed="false">疊圖</button><button data-mode="wipe" aria-pressed="false">滑桿</button><button data-mode="diff" aria-pressed="false">差異圖</button></div><div class="zoom-control"><label for="zoom">縮放</label><select id="zoom"><option value="fit">符合視窗</option><option value="0.25">25%</option><option value="0.5">50%</option><option value="0.75">75%</option><option value="1">100%</option><option value="1.5">150%</option><option value="2">200%</option></select></div></div>
+          <div class="mode-controls" id="modeControls" hidden><label id="blendLabel" for="blend">網頁透明度</label><input id="blend" type="range" min="0" max="100" value="50"><output id="blendValue">50%</output><span class="mode-help" id="modeHelp">設計稿在下方，網頁在上方</span></div>
+          <div id="dimensionNotice" class="dimension-notice" hidden></div>
+          <div class="canvas-viewport" id="viewport">
+            <div class="empty-state" id="emptyState"><div class="empty-illustration" aria-hidden="true"><div class="mini-frame back"><div></div><i></i><i></i><b></b></div><div class="mini-frame front"><div></div><i></i><i></i><b></b></div><span class="crosshair">＋</span></div><span class="small-label">A LITTLE CHECK. A BETTER MATCH.</span><h2>每個好設計，都值得被好好實現。</h2><p id="emptyMessage">加入設計稿與網頁截圖，開始你的第一次比對。</p><button class="button primary" id="emptyUpload">選擇設計稿 <span aria-hidden="true">↗</span></button><button class="text-button" id="emptyDemo">先試試示範圖片 →</button></div>
+            <div id="imageStage" class="image-stage" hidden><figure id="figureA"><figcaption><span class="legend-dot design"></span><span id="captionA">Figma 設計稿</span><span id="canvasSize"></span></figcaption><div class="image-wrap" id="wrapA"><canvas id="canvasA" aria-label="設計稿或合成比對圖片"></canvas><svg id="marksA" aria-hidden="true"></svg><div class="wipe-handle" id="wipeHandle" hidden><span>↔</span></div></div></figure><figure id="figureB"><figcaption><span class="legend-dot web"></span>實際網頁截圖</figcaption><div class="image-wrap" id="wrapB"><canvas id="canvasB" aria-label="網頁截圖"></canvas><svg id="marksB" aria-hidden="true"></svg></div></figure></div>
+          </div>
+          <div class="canvas-footer"><span id="canvasStatus"><span class="status-dot"></span> 等待加入兩張圖片</span><span id="coordStatus">座標以原始參考像素計算</span></div>
+        </div>
+        <div class="results-row"><div class="metric"><span>像素差異比例 <span class="info-dot" title="差異像素 ÷ 有效比較像素。這不是設計還原度分數。">i</span></span><strong id="ratio">—<small>%</small></strong><p>作為檢查線索，不是設計還原度分數</p></div><div class="metric"><span>差異像素</span><strong id="changed">—</strong><p id="compared">尚未開始計算</p></div><div class="metric"><span>忽略範圍</span><strong id="ignored">0<small>區</small></strong><p id="ignoredPixels">排除日期、名稱等動態內容</p></div></div>
+        <div class="export-bar"><div><strong>留下這次比對的依據</strong><p>匯出差異圖與設定報告，讓溝通更清楚。</p></div><div><button class="button secondary" id="exportDiff" disabled>↓ 差異 PNG</button><button class="button primary" id="exportReport" disabled>↓ 比對報告</button></div></div>
+        <details class="approval-panel"><summary>驗收完成？保存網頁截圖作為回歸基準 <span>→</span></summary><p>請先人工檢查間距、對齊、換行與視覺層級。差異比例不會自動決定驗收結果。</p><label class="check-label"><input type="checkbox" id="approved" disabled>我已依設計稿確認這張網頁截圖，核准作為基準。</label><label for="reviewNote" class="field-label">驗收備註（選填）</label><textarea id="reviewNote" rows="2" placeholder="例如：登入表單已核准；右上日期列排除。"></textarea><button class="button primary" id="saveBaseline" disabled>↓ 保存已核准網頁 PNG</button><p class="field-help">這是原始網頁圖，不會套用疊圖或縮放。自動回歸請到 B，使用同一 Playwright 環境產生的候選圖完成驗收與核准。</p></details>
+      </div>
+    </div>
+    <p class="workspace-note"><span aria-hidden="true">◇</span> 截圖能指出視覺差異；精確的 DOM、CSS 數值與原因，仍需要設計規格與 computed styles。</p>
+  </section>
+  <section id="panelB" role="tabpanel" aria-labelledby="tabB" hidden>
+    <div class="regression-intro"><span class="eyebrow">KEEP THE GOOD VERSION GOOD.</span><h2>通過驗收，再把正確畫面留下來。</h2><p>在本機或內網測試環境執行 Playwright。此頁幫你準備設定與範本。</p></div>
+    <div class="process-cards"><article><span>01</span><h3>擷取候選截圖</h3><p>固定瀏覽器、字型、尺寸與資料，產生待驗收的網頁 PNG。</p><code>npm run capture</code></article><article><span>02</span><h3>人工驗收並核准</h3><p>回到 A 與 Figma 比對；確認後，將同一張候選圖明確保存為基準。</p><code>npm run approve -- --reviewed</code></article><article><span>03</span><h3>每次修改，自動檢查</h3><p>差異會讓測試失敗，交由人員確認。不會自動更新已核准基準。</p><code>npm test</code></article></div>
+    <div class="regression-grid"><section class="setup-card"><div class="section-heading"><h2>建立你的測試設定</h2><span class="small-label">LOCAL PLAYWRIGHT</span></div><form id="regressionForm"><label class="field-label" for="testUrl">受測網頁網址</label><input id="testUrl" type="url" required value="http://localhost:3000" placeholder="https://your-internal-site.example"><div class="two-fields"><label>畫面寬度（px）<input id="testWidth" type="number" min="320" max="7680" required value="1440"></label><label>畫面高度（px）<input id="testHeight" type="number" min="240" max="4320" required value="900"></label></div><label class="field-label" for="readySelector">載入完成的元素（選填）</label><input id="readySelector" placeholder='例如：[data-testid="page-ready"]'><label class="field-label" for="maskSelectors">排除動態內容（每行一個 CSS selector）</label><textarea id="maskSelectors" rows="3" placeholder=".current-time&#10;[data-testid=&quot;user-name&quot;]"></textarea><p class="field-help">B 使用 DOM selector 遮罩；A 的像素框選不會自動轉換成 selector。</p><button type="submit" class="button primary wide">↓ 下載 Playwright 範本 ZIP</button></form></section><section class="setup-card code-card"><div class="section-heading"><h2>設定預覽</h2><span class="code-file">regression.settings.json</span></div><pre id="settingsPreview"></pre><div class="regression-note"><strong>先安裝，再測試</strong><p>範本含安裝說明、擷取與核准腳本。內網環境需先透過公司允許的來源準備 Node.js、Playwright 與瀏覽器。</p><strong>每次都使用相同的條件</strong><p>鎖定套件與瀏覽器版本、作業系統、字型、視窗尺寸、縮放和測試資料。GitHub Pages 提供此靜態工具；測試在你能存取目標頁面的環境執行。</p></div></section></div>
+  </section>
+  <footer class="page-footer"><span>framecheck. <span>把差異看清楚，把設計做好。</span></span><span>無 CDN · 無 MCP · 可離線使用</span></footer>
+</main>
+<dialog id="helpDialog"><div class="dialog-heading"><h2>開始一次可靠的比對</h2><button class="icon-button" id="closeHelp" aria-label="關閉指南">×</button></div><ol><li><strong>準備同尺寸圖片</strong><p>有匯出權限的 Figma Frame 匯出為 1× PNG；以相同視窗尺寸取得網頁截圖。長頁面請使用一致的完整頁面高度。</p></li><li><strong>先看結構，再看細節</strong><p>並排確認整體；疊圖找位移；滑桿看同一區域；差異圖顯示像素色差。</p></li><li><strong>只比較真正重要的區域</strong><p>框選表單或導覽列；忽略日期和姓名。可拖曳框選，也能用座標輸入。</p></li><li><strong>人工核准後才建立基準</strong><p>像素比例不是設計還原度。確認視覺結果後保存網頁圖；到 B 下載自動回歸範本。</p></li></ol><div class="help-note">圖片只在這個分頁的記憶體中處理，不上傳、不寫入瀏覽器儲存空間。重新整理會清除圖片與設定。每張圖片最多 12 MB、12 百萬像素；合成畫布也受相同像素上限限制。建議使用 PNG 以避免壓縮雜訊。</div><button class="button primary" id="helpDone">開始比對</button></dialog>
+<div id="toast" role="status" aria-live="polite" hidden></div>
+<script>(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory();
+  else root.PixelCompare = factory();
+})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+  'use strict';
+
+  function dimensions(width, height) {
+    if (!Number.isSafeInteger(width) || !Number.isSafeInteger(height) || width < 1 || height < 1) {
+      throw new TypeError('Canvas width and height must be positive integers.');
+    }
+  }
+
+  /**
+   * Normalize a rectangle in image pixels and intersect it with the canvas.
+   * Negative extents are allowed (e.g. dragging from bottom-right to top-left).
+   * Fractional edges expand outwards to cover touched pixels; right/bottom edges
+   * are exclusive. Returns { x, y, width, height }, or null when empty/invalid.
+   * null input means no rectangle, not the full canvas.
+   */
+  function normalizeRect(rect, width, height) {
+    dimensions(width, height);
+    if (!rect || !['x', 'y', 'width', 'height'].every(function (key) { return Number.isFinite(rect[key]); })) return null;
+    if (rect.width === 0 || rect.height === 0) return null;
+    var x1 = Math.max(0, Math.min(width, Math.floor(Math.min(rect.x, rect.x + rect.width))));
+    var y1 = Math.max(0, Math.min(height, Math.floor(Math.min(rect.y, rect.y + rect.height))));
+    var x2 = Math.max(0, Math.min(width, Math.ceil(Math.max(rect.x, rect.x + rect.width))));
+    var y2 = Math.max(0, Math.min(height, Math.ceil(Math.max(rect.y, rect.y + rect.height))));
+    return x2 > x1 && y2 > y1 ? { x: x1, y: y1, width: x2 - x1, height: y2 - y1 } : null;
+  }
+
+  function imageSize(size, width, height) {
+    if (size == null) return { width: width, height: height };
+    dimensions(size.width, size.height);
+    if (size.width > width || size.height > height) throw new RangeError('Image dimensions cannot exceed the canvas.');
+    return size;
+  }
+
+  function validatePixels(pixels, length, label) {
+    if (!(pixels instanceof Uint8ClampedArray) || pixels.length !== length) {
+      throw new TypeError(label + ' must be a canvas-sized Uint8ClampedArray of RGBA pixels.');
+    }
+  }
+
+  /**
+   * a/b are equally padded RGBA buffers with stride = width * 4.
+   * Optional aSize/bSize describe each original image, top-left aligned at (0,0).
+   * Alpha is composited over white before measuring the maximum RGB distance.
+   * threshold is a channel distance from 0..255, not a percentage.
+   * Region limits eligible pixels; ignores exclude their union inside that region.
+   * Missing pixels on exactly one image always differ, even at threshold 255.
+   * Padding outside BOTH images is excluded from all statistics.
+   */
+  function compare(options) {
+    if (!options) throw new TypeError('Comparison options are required.');
+    var width = options.width, height = options.height;
+    dimensions(width, height);
+    var count = width * height;
+    if (!Number.isSafeInteger(count * 4)) throw new RangeError('Canvas is too large.');
+    var a = options.a, b = options.b;
+    validatePixels(a, count * 4, 'a');
+    validatePixels(b, count * 4, 'b');
+    var threshold = options.threshold === undefined ? 16 : options.threshold;
+    if (!Number.isFinite(threshold) || threshold < 0 || threshold > 255) throw new RangeError('Threshold must be between 0 and 255.');
+    var aSize = imageSize(options.aSize, width, height);
+    var bSize = imageSize(options.bSize, width, height);
+    var region = options.region == null ? { x: 0, y: 0, width: width, height: height } : normalizeRect(options.region, width, height);
+    var ignores = options.ignores == null ? [] : options.ignores;
+    if (!Array.isArray(ignores)) throw new TypeError('ignores must be an array of rectangles.');
+    var mask = ignores.length ? new Uint8Array(count) : null;
+    ignores.forEach(function (raw) {
+      var rect = normalizeRect(raw, width, height);
+      if (!rect) return;
+      for (var y = rect.y; y < rect.y + rect.height; y++) {
+        mask.fill(1, y * width + rect.x, y * width + rect.x + rect.width);
+      }
+    });
+    var data = new Uint8ClampedArray(count * 4);
+    var changed = 0, compared = 0, ignored = 0;
+    var minX = width, minY = height, maxX = -1, maxY = -1;
+
+    for (var y = 0; y < height; y++) {
+      for (var x = 0; x < width; x++) {
+        var pixel = y * width + x, i = pixel * 4;
+        var hasA = x < aSize.width && y < aSize.height;
+        var hasB = x < bSize.width && y < bSize.height;
+        var alphaA = a[i + 3] / 255, alphaB = b[i + 3] / 255;
+        var ar = a[i] * alphaA + 255 * (1 - alphaA);
+        var ag = a[i + 1] * alphaA + 255 * (1 - alphaA);
+        var ab = a[i + 2] * alphaA + 255 * (1 - alphaA);
+        var br = b[i] * alphaB + 255 * (1 - alphaB);
+        var bg = b[i + 1] * alphaB + 255 * (1 - alphaB);
+        var bb = b[i + 2] * alphaB + 255 * (1 - alphaB);
+        var light = hasA ? 0.2126 * ar + 0.7152 * ag + 0.0722 * ab : 0.2126 * br + 0.7152 * bg + 0.0722 * bb;
+        var pale = Math.round(light * 0.22 + 255 * 0.78);
+        data[i] = data[i + 1] = data[i + 2] = pale;
+        data[i + 3] = 255;
+
+        var eligible = (hasA || hasB) && region && x >= region.x && x < region.x + region.width && y >= region.y && y < region.y + region.height;
+        if (!eligible) {
+          data[i] = data[i + 1] = data[i + 2] = 246;
+          continue;
+        }
+        if (mask && mask[pixel]) {
+          ignored++;
+          data[i] = 226; data[i + 1] = 230; data[i + 2] = 237;
+          continue;
+        }
+        compared++;
+        var differs = hasA !== hasB || Math.max(Math.abs(ar - br), Math.abs(ag - bg), Math.abs(ab - bb)) > threshold;
+        if (differs) {
+          changed++;
+          minX = Math.min(minX, x); minY = Math.min(minY, y);
+          maxX = Math.max(maxX, x); maxY = Math.max(maxY, y);
+          data[i] = 236; data[i + 1] = 71; data[i + 2] = 106;
+        }
+      }
+    }
+    return {
+      data: data,
+      changed: changed,
+      compared: compared,
+      ignored: ignored,
+      ratio: compared ? changed / compared : null,
+      bounds: changed ? { x: minX, y: minY, width: maxX - minX + 1, height: maxY - minY + 1 } : null
+    };
+  }
+
+  return Object.freeze({ compare: compare, normalizeRect: normalizeRect });
+});
+</script>
+<script>const REGRESSION_TEMPLATES = {"package.json":"{\n  \"name\": \"figma-compare-visual-regression\",\n  \"version\": \"1.0.0\",\n  \"private\": true,\n  \"type\": \"module\",\n  \"engines\": { \"node\": \">=20\" },\n  \"scripts\": {\n    \"test\": \"playwright test\",\n    \"capture\": \"node scripts/capture.mjs\",\n    \"approve\": \"node scripts/approve.mjs\",\n    \"report\": \"playwright show-report\"\n  },\n  \"devDependencies\": { \"@playwright/test\": \"1.64.1\" }\n}\n",".gitignore":"node_modules/\ntest-results/\nplaywright-report/\ncandidates/\nplaywright/.auth/\n.env\n","regression.settings.json":"{\n  \"url\": \"http://localhost:3000\",\n  \"viewport\": { \"width\": 1440, \"height\": 900 },\n  \"maskSelectors\": [],\n  \"readySelector\": \"\"\n}\n","visual.settings.js":"import { readFileSync } from 'node:fs';\n// 此 JSON 可由工具的「後續回歸」分頁設定並下載。\nconst settings = JSON.parse(readFileSync(new URL('./regression.settings.json', import.meta.url), 'utf8'));\nconst viewport = settings.viewport;\nif (!viewport || !Number.isInteger(viewport.width) || !Number.isInteger(viewport.height) || viewport.width \u003c 1 || viewport.height \u003c 1 || viewport.width > 16384 || viewport.height > 16384) {\n  throw new Error('regression.settings.json 的 viewport 寬高必須是 1～16384 的整數。');\n}\n// 尺寸、字型、資料集或遮罩變動後，重新擷取並人工驗收候選。\nexport const contextSettings = {\n  viewport,\n  deviceScaleFactor: 1,\n  locale: 'zh-TW',\n  timezoneId: 'Asia/Taipei',\n  colorScheme: 'light',\n  reducedMotion: 'reduce',\n  isMobile: false,\n  hasTouch: false,\n};\n\nexport const screenshotSettings = {\n  fullPage: false,\n  animations: 'disabled',\n  caret: 'hide',\n  scale: 'css',\n  maskColor: '#FF00FF',\n};\n\n// 資料集版本應對應應用程式已固定的測試資料；此欄不會自動建立資料。\nexport const datasetVersion = 'review-fixture-v1';\n// 如有 @font-face，填入精確 family 名稱；空陣列仍會等待 document.fonts.ready。\nexport const requiredWebFonts = [];\n\nexport function runtimeSettings() {\n  const rawUrl = process.env.TEST_URL || settings.url;\n  if (!rawUrl) throw new Error('請設定 TEST_URL，例如 http://127.0.0.1:3000/review');\n  const url = new URL(rawUrl);\n  if (!['http:', 'https:'].includes(url.protocol)) throw new Error('TEST_URL 只支援 HTTP / HTTPS。');\n  if (url.username || url.password) throw new Error('請勿將登入憑證放入 TEST_URL，請使用獨立登入 fixture。');\n  const maskSelectors = process.env.MASK_SELECTORS ? JSON.parse(process.env.MASK_SELECTORS) : (settings.maskSelectors || []);\n  if (!Array.isArray(maskSelectors) || maskSelectors.some(x => typeof x !== 'string' || !x.trim())) {\n    throw new Error('MASK_SELECTORS 必須為非空 CSS selector 的 JSON 陣列。');\n  }\n  return {\n    url: url.href,\n    readySelector: process.env.READY_SELECTOR || settings.readySelector || 'body',\n    maskSelectors,\n  };\n}\n","playwright.config.js":"import { defineConfig } from '@playwright/test';\nimport { contextSettings, screenshotSettings } from './visual.settings.js';\n\nexport default defineConfig({\n  testDir: './tests',\n  testMatch: 'visual.spec.js',\n  timeout: 60_000,\n  fullyParallel: false,\n  workers: 1,\n  retries: 0,\n  forbidOnly: Boolean(process.env.CI),\n  updateSnapshots: 'none',\n  snapshotPathTemplate: '{testDir}/../baselines/{projectName}-{platform}/{arg}{ext}',\n  outputDir: './test-results',\n  reporter: [['list'], ['html', { open: 'never', outputFolder: 'playwright-report' }]],\n  expect: {\n    timeout: 15_000,\n    toHaveScreenshot: {\n      ...screenshotSettings,\n      threshold: 0.1,\n      maxDiffPixels: 0,\n    },\n  },\n  use: {\n    ...contextSettings,\n    headless: true,\n    trace: 'off',\n    video: 'off',\n  },\n  projects: [{ name: 'chromium', use: { browserName: 'chromium' } }],\n});\n","README.md":"# B · 後續視覺回歸測試\n\n這份範本在本機或能存取內網的測試機執行。GitHub Pages 只提供圖片比對介面與範本下載，無法替你在伺服器執行 Playwright、讀取內網 DOM 或自動截取任意網站。\n\n流程：**擷取網頁候選 → 用 A 與 Figma 人工驗收 → 原樣保存已驗收截圖 → 後續修改自動比較**。\n\n## 1. 準備執行環境\n\n使用 Node.js 20 以上；在這個 `regression` 目錄執行：\n\n```sh\nnpm install\nnpx playwright install chromium\n```\n\n`@playwright/test` 固定為 `1.64.1`。第一次安裝後，把產生的 `package-lock.json` 納入版本控制，其他機器使用 `npm ci`。瀏覽器與 npm 套件需事先由公司核准來源安裝；內網隔離環境可使用公司套件鏡像與對應 Playwright 版本的瀏覽器快取。安裝完成後，測試只需能連到待測網站及其資源。\n\n## 2. 設定待測頁面\n\n編輯 `regression.settings.json`；也可先在圖片工具的「後續回歸」分頁設定，再下載範本。\n\n```json\n{\n  \"url\": \"http://localhost:3000/review\",\n  \"viewport\": { \"width\": 1440, \"height\": 900 },\n  \"maskSelectors\": [\"[data-testid='current-time']\"],\n  \"readySelector\": \"[data-visual-ready='true']\"\n}\n```\n\n`readySelector` 應指向「資料與版面已完成」的可見元素。空字串只等待 `body`，請依實際網站補上明確條件。遮罩使用 CSS selector，而不是 A 分頁的圖片座標；找不到遮罩元素會使流程失敗，避免默默漏掉動態區域。\n\n進一步固定條件在 `visual.settings.js`：DPR 1、zh-TW、Asia/Taipei、light、reduced motion、1440×900 預設視窗；截圖以 CSS 像素輸出、隱藏游標、停用動畫。預設只截可見視窗；改成 `fullPage: true` 時，請另外處理虛擬清單與無限載入。\n\n`requiredWebFonts` 可填入專案的 `@font-face` family 名稱，範本會驗證與等待載入；空陣列仍等待 `document.fonts.ready`。本機系統字型及 CSS background 圖片、canvas、跨頁 iframe 等，需在專案準備步驟加入適當的完成條件。請固定字型檔版本、資料 fixture、瀏覽器版本、OS／容器映像及 headless 模式；字型載入完畢不代表它就是指定的設計字型。\n\n需要登入或 mock API 時，在 `scripts/shared.mjs` 的 `preparePage()` 加入專案步驟；不要把登入金鑰寫入公開 repo。`datasetVersion` 只是記錄資料集版本，不會自動建立或固定後端資料。\n\n可選環境變數覆寫（PowerShell）：\n\n```powershell\n$env:TEST_URL = 'http://localhost:3000/review'\n$env:READY_SELECTOR = '[data-visual-ready=\"true\"]'\n$env:MASK_SELECTORS = '[\"[data-testid=\\\"current-time\\\"]\"]'\n```\n\n設定會記入本機候選與基準的 JSON，供測試檢查環境一致性。請使用固定且可分享給團隊的測試 URL，避免 URL 查詢字串含機密。\n\n## 3. 擷取候選，人工驗收\n\n```sh\nnpm run capture\n```\n\n截圖存於 `candidates/chromium-\u003c平台>/page.png`，例如 Windows 是 `chromium-win32`。會等待指定元素、字型、可見圖片解碼，並確認兩次連續截圖相同；產生候選不代表符合設計。\n\n把這張候選與 Figma 匯出 PNG 放入 A 分頁，檢查間距、對齊、換行與視覺層級。兩者最好使用相同尺寸與 1× 像素比例；Figma 匯出需具有權限。\n\n## 4. 人工確認通過後才建立基準\n\n```sh\nnpm run approve -- --reviewed\n```\n\n此命令只將剛才驗收的候選 PNG 原樣複製到 `baselines/chromium-\u003c平台>/page.png`，保留 SHA-256 與環境記錄，不會重新擷取。`--reviewed` 是操作人的確認，工具無法替人判定設計已通過。請把 `page.png` 與 `baseline.json` 一起提交版本控制。\n\n## 5. 每次修改後執行\n\n```sh\nnpm test\nnpm run report\n```\n\n一般測試有以下行為：缺基準會失敗；環境或設定變更會失敗；偵測到差異會產生 Playwright HTML 報告；**不會產生或更新基準**。也會拒絕 `--update-snapshots` 覆寫模式。\n\n預設顏色差異容差 `threshold: 0.1`、允許差異像素 `maxDiffPixels: 0`。可依團隊規範在 `playwright.config.js` 調整；它們是測試判定條件，不是設計還原度分數，也不等同 A 分頁的 RGB 通道差異算法。\n\n設計確實變更時，重新 `capture` → 人工驗收 → 明確替換：\n\n```sh\nnpm run approve -- --reviewed --replace\n```\n\n查看圖片 diff 與驗收記錄後再提交變更；不要因測試失敗就直接接受新基準。\n\n## 6. 內網 CI\n\n在可存取內網且已準備固定依賴與瀏覽器的受控 runner 執行 `npm ci`、`npm test` 即可。不要假設 GitHub 公用 runner 能存取公司內網。使用固定 OS／映像與字型，並在同一環境擷取和人工核准基準；這份範本記錄 OS release、架構與瀏覽器版本，不一致時會要求重新驗收。\n\n若使用 self-hosted runner，請依公司既有 CI 流程限制可執行的分支與程式碼來源。報告可含截圖與測試 URL，請存於公司核准的報告空間。此範本不會自動上傳報告或提交基準。\n\n## 官方參考\n\n- [Playwright 視覺比對](https://playwright.dev/docs/test-snapshots)\n- [toHaveScreenshot 選項](https://playwright.dev/docs/api/class-pageassertions#page-assertions-to-have-screenshot-1)\n- [updateSnapshots 設定](https://playwright.dev/docs/api/class-testconfig#test-config-update-snapshots)\n- [1.64.1 官方版本](https://github.com/microsoft/playwright/releases/tag/v1.64.1)\n\n範本固定套件版本與 API 依官方文件於 2026-10-28 查核。尚未套用你的真實網站；登入、測試資料與 ready 條件須依專案調整。\n","scripts/shared.mjs":"import { createHash } from 'node:crypto';\nimport { readFileSync } from 'node:fs';\nimport { fileURLToPath } from 'node:url';\nimport path from 'node:path';\nimport os from 'node:os';\nimport { contextSettings, screenshotSettings, requiredWebFonts, datasetVersion, runtimeSettings } from '../visual.settings.js';\n\nexport const root = fileURLToPath(new URL('../', import.meta.url));\nexport const key = `chromium-${process.platform}`;\nexport const candidateDirectory = path.join(root, 'candidates', key);\nexport const baselineDirectory = path.join(root, 'baselines', key);\nexport const digest = bytes => createHash('sha256').update(bytes).digest('hex');\n\nexport function environmentSignature(browserVersion) {\n  return {\n    playwright: JSON.parse(readFileSync(path.join(root, 'package.json'), 'utf8')).devDependencies['@playwright/test'],\n    platform: process.platform,\n    arch: process.arch,\n    osRelease: os.release(),\n    browserVersion,\n    contextSettings,\n    screenshotSettings,\n    requiredWebFonts,\n    datasetVersion,\n    ...runtimeSettings(),\n  };\n}\n\nexport async function preparePage(page) {\n  const { url, readySelector } = runtimeSettings();\n  const response = await page.goto(url, { waitUntil: 'load' });\n  if (response && !response.ok()) throw new Error(`網頁回應 HTTP ${response.status()}。`);\n  await page.locator(readySelector).first().waitFor({ state: 'visible' });\n\n  // 需要登入、固定 API fixture、等應用程式資料完成時，在這裡加入專案的明確條件。\n  // 例如 await page.getByTestId('orders-loaded').waitFor({ state: 'visible' });\n  // 不把 networkidle 或固定 sleep 當成所有應用程式都已準備好的證明。\n  await page.evaluate(async ({ fonts, fullPage }) => {\n    for (const family of fonts) {\n      const faces = await document.fonts.load(`16px ${JSON.stringify(family)}`);\n      if (!faces.length) throw new Error(`找不到指定的網頁字型：${family}`);\n    }\n    await document.fonts.ready;\n    const images = [...document.images].filter(img => {\n      const box = img.getBoundingClientRect();\n      return fullPage || (box.width > 0 && box.height > 0 && box.bottom > 0 && box.right > 0 && box.top \u003c innerHeight && box.left \u003c innerWidth);\n    });\n    // fullPage 時也啟動 lazy 圖片；自訂虛擬清單需在上方準備步驟另外展開。\n    await Promise.all(images.map(async img => {\n      if (fullPage) img.loading = 'eager';\n      if (!img.complete) await new Promise((resolve, reject) => {\n        img.addEventListener('load', resolve, { once: true });\n        img.addEventListener('error', () => reject(new Error('圖片載入失敗')), { once: true });\n      });\n      if (!img.naturalWidth) throw new Error('截圖範圍內有未載入的圖片。');\n      await img.decode();\n    }));\n  }, { fonts: requiredWebFonts, fullPage: screenshotSettings.fullPage });\n  await page.mouse.move(-1, -1);\n}\n\nexport async function screenshotOptions(page) {\n  const { maskSelectors } = runtimeSettings();\n  const mask = maskSelectors.map(selector => page.locator(selector));\n  // selector 寫錯時直接失敗，避免使用者以為已排除敏感動態資料。\n  for (let i = 0; i \u003c mask.length; i++) {\n    if (await mask[i].count() === 0) throw new Error(`忽略區域找不到元素：${maskSelectors[i]}`);\n  }\n  return { ...screenshotSettings, mask };\n}\n","scripts/capture.mjs":"import { chromium } from '@playwright/test';\nimport { mkdir, writeFile } from 'node:fs/promises';\nimport path from 'node:path';\nimport { contextSettings } from '../visual.settings.js';\nimport { candidateDirectory, digest, environmentSignature, preparePage, screenshotOptions } from './shared.mjs';\n\nconst browser = await chromium.launch({ headless: true });\ntry {\n  const context = await browser.newContext(contextSettings);\n  const page = await context.newPage();\n  page.setDefaultTimeout(15_000);\n  page.setDefaultNavigationTimeout(30_000);\n  await Promise.race([\n    preparePage(page),\n    new Promise((_, reject) => { const timer = setTimeout(() => reject(new Error('頁面準備逾時。請檢查字型、圖片與 READY_SELECTOR。')), 45_000); timer.unref(); }),\n  ]);\n  const options = await screenshotOptions(page);\n  let previous;\n  let stable;\n  for (let attempt = 0; attempt \u003c 20; attempt++) {\n    const current = await page.screenshot(options);\n    if (previous?.equals(current)) { stable = current; break; }\n    previous = current;\n    await page.waitForTimeout(150);\n  }\n  if (!stable) throw new Error('連續截圖仍不穩定；請固定資料、停用動態內容或設定遮罩。');\n  await mkdir(candidateDirectory, { recursive: true });\n  await writeFile(path.join(candidateDirectory, 'page.png'), stable);\n  await writeFile(path.join(candidateDirectory, 'candidate.json'), JSON.stringify({\n    status: 'unreviewed',\n    capturedAt: new Date().toISOString(),\n    sha256: digest(stable),\n    environment: environmentSignature(browser.version()),\n  }, null, 2));\n  console.log(`候選截圖已儲存：${path.join(candidateDirectory, 'page.png')}\\n請先與 Figma 設計稿驗收，尚未建立或更新基準。`);\n} finally {\n  await browser.close();\n}\n","scripts/approve.mjs":"import { mkdir, readFile, writeFile, access } from 'node:fs/promises';\nimport path from 'node:path';\nimport { candidateDirectory, baselineDirectory, digest } from './shared.mjs';\n\nconst args = process.argv.slice(2);\nif (args.some(arg => !['--reviewed', '--replace'].includes(arg)) || !args.includes('--reviewed')) {\n  throw new Error('先完成設計驗收，再執行 npm run approve -- --reviewed。更新既有基準需另加 --replace。');\n}\nconst candidate = await readFile(path.join(candidateDirectory, 'page.png'));\nconst metadata = JSON.parse(await readFile(path.join(candidateDirectory, 'candidate.json'), 'utf8'));\nif (metadata.status !== 'unreviewed' || metadata.sha256 !== digest(candidate)) {\n  throw new Error('候選圖片或記錄已改變，請重新擷取並驗收。');\n}\nconst baselinePath = path.join(baselineDirectory, 'page.png');\nlet exists = true;\ntry { await access(baselinePath); } catch (error) { if (error.code === 'ENOENT') exists = false; else throw error; }\nif (exists && !args.includes('--replace')) throw new Error('已有基準。確認這次候選也完成驗收後，明確加上 --replace。');\nawait mkdir(baselineDirectory, { recursive: true });\nawait writeFile(baselinePath, candidate);\nawait writeFile(path.join(baselineDirectory, 'baseline.json'), JSON.stringify({\n  ...metadata,\n  status: 'reviewed',\n  approvedAt: new Date().toISOString(),\n}, null, 2));\nconsole.log(`已將人工驗收的候選原樣儲存為基準：${baselinePath}\\n請連同 baseline.json 提交至版本控制。`);\n","tests/visual.spec.js":"import { test, expect } from '@playwright/test';\nimport { readFile } from 'node:fs/promises';\nimport path from 'node:path';\nimport { digest, environmentSignature, preparePage, screenshotOptions } from '../scripts/shared.mjs';\n\ntest('已驗收畫面的視覺回歸', async ({ page, browser }, testInfo) => {\n  expect(testInfo.config.updateSnapshots, '請用 capture → 人工驗收 → approve 流程；一般測試不得更新基準。').toBe('none');\n  const baselinePath = testInfo.snapshotPath('page.png');\n  let baseline;\n  let metadata;\n  try {\n    baseline = await readFile(baselinePath);\n    metadata = JSON.parse(await readFile(path.join(path.dirname(baselinePath), 'baseline.json'), 'utf8'));\n  } catch (error) {\n    throw new Error(`缺少已驗收基準或記錄。請先執行 npm run capture、人工比對設計稿，再 npm run approve -- --reviewed。\\n${error.message}`);\n  }\n  expect(metadata.status, '基準須有人工驗收記錄').toBe('reviewed');\n  expect(digest(baseline), '基準圖片的雜湊值與驗收記錄不符').toBe(metadata.sha256);\n  expect(metadata.environment, '環境或截圖設定已改變，請使用原環境或重新擷取並驗收。').toEqual(environmentSignature(browser.version()));\n  await preparePage(page);\n  await expect(page).toHaveScreenshot('page.png', await screenshotOptions(page));\n});\n"};</script>
+<script>(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const MAX_PIXELS = 12000000, MAX_FILE = 12 * 1024 * 1024, MAX_SIDE = 16384;
+  const state = { a: null, b: null, width: 0, height: 0, bWidth: 0, bHeight: 0, mode: 'side', blend: 50, threshold: 16, sizeMode: 'original', region: null, ignores: [], tool: null, draft: null, result: null, scale: 1, busy: false };
+  const baseA = document.createElement('canvas'), baseB = document.createElement('canvas'), diff = document.createElement('canvas');
+  let dataA, dataB, pending, toastTimer, loadSequence = { a: 0, b: 0 };
+  const number = n => n.toLocaleString('zh-TW');
+  const ctx = c => c.getContext('2d', { willReadFrequently: true });
+  function toast(message) { $('toast').textContent = message; $('toast').hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => { $('toast').hidden = true; }, 5500); }
+  function hasPair() { return !!(state.a && state.b); }
+  function resetApproval() { $('approved').checked = false; $('saveBaseline').disabled = true; }
+  function safeDimensions(a, b, mode) {
+    let bw = b?.width || 0, bh = b?.height || 0;
+    if (a && b && mode === 'width') { bw = a.width; bh = Math.max(1, Math.round(b.height * a.width / b.width)); }
+    const width = Math.max(a?.width || 0, bw), height = Math.max(a?.height || 0, bh);
+    if (width * height > MAX_PIXELS || width > MAX_SIDE || height > MAX_SIDE) throw new Error('合成畫布超過 1,200 萬像素或單邊 16,384 px，請先裁切圖片或改用較小的截圖。');
+    return { width, height, bw, bh };
+  }
+  function resetRegions() { state.region = null; state.ignores = []; state.draft = null; setTool(null); updateRegions(); }
+  async function importFile(file, key) {
+    if (!file) return;
+    const sequence = ++loadSequence[key];
+    let url;
+    try {
+      if (!/\.(png|jpe?g|webp)$/i.test(file.name) || (file.type && !['image/png', 'image/jpeg', 'image/webp'].includes(file.type))) throw new Error('請使用 PNG、JPG 或 WebP 圖片。');
+      if (file.size > MAX_FILE) throw new Error('圖片超過 12 MB，請先裁切或減少匯出尺寸。');
+      url = URL.createObjectURL(file);
+      const img = new Image(); img.src = url;
+      await img.decode();
+      if (sequence !== loadSequence[key]) { URL.revokeObjectURL(url); return; }
+      if (!img.naturalWidth || !img.naturalHeight || img.naturalWidth * img.naturalHeight > MAX_PIXELS || Math.max(img.naturalWidth, img.naturalHeight) > MAX_SIDE) throw new Error('圖片超過 1,200 萬像素或單邊 16,384 px，請先裁切。');
+      const source = { image: img, width: img.naturalWidth, height: img.naturalHeight, name: file.name, url, fileBytes: file.size, demo: false };
+      safeDimensions(key === 'a' ? source : state.a, key === 'b' ? source : state.b, state.sizeMode);
+      if (state[key]?.url) URL.revokeObjectURL(state[key].url);
+      state[key] = source;
+      resetRegions(); resetApproval(); updateSource(key); preparePair();
+      toast(`${key === 'a' ? '設計稿' : '網頁截圖'}已加入`);
+    } catch (e) { if (url) URL.revokeObjectURL(url); if (sequence === loadSequence[key]) toast(e.name === 'EncodingError' ? '無法解碼這張圖片，請確認檔案沒有損毀。' : e.message || '無法讀取圖片，請確認檔案沒有損毀。'); }
+  }
+  function updateSource(key) {
+    const source = state[key], suffix = key.toUpperCase();
+    $('name' + suffix).textContent = source.name;
+    $('meta' + suffix).textContent = `${number(source.width)} × ${number(source.height)} px`;
+    $('thumb' + suffix).src = source.url; $('thumb' + suffix).hidden = false;
+    $('drop' + suffix).classList.add('loaded');
+    $('drop' + suffix).querySelector('.upload-icon').textContent = '更換圖片 ↗';
+  }
+  function enablePairControls(ready) {
+    ['regionTool','ignoreTool','addRegion','addIgnore','approved'].forEach(id => { $(id).disabled = !ready; });
+  }
+  function preparePair() {
+    state.result = null; resetApproval();
+    $('exportDiff').disabled = true; $('exportReport').disabled = true;
+    enablePairControls(hasPair());
+    if (!hasPair()) {
+      const count = Number(!!state.a) + Number(!!state.b);
+      $('emptyMessage').textContent = state.a ? '設計稿已就緒，再加入一張實際網頁截圖。' : state.b ? '網頁截圖已就緒，再加入一張 Figma 設計稿。' : '加入設計稿與網頁截圖，開始你的第一次比對。';
+      $('emptyUpload').textContent = state.a ? '選擇網頁截圖 ↗' : '選擇設計稿 ↗';
+      $('canvasStatus').textContent = count ? '已加入 1 / 2 張圖片' : '等待加入兩張圖片';
+      return;
+    }
+    const dims = safeDimensions(state.a, state.b, state.sizeMode);
+    Object.assign(state, { width: dims.width, height: dims.height, bWidth: dims.bw, bHeight: dims.bh });
+    [baseA,baseB,diff,$('canvasA'),$('canvasB')].forEach(c => { c.width = state.width; c.height = state.height; });
+    ctx(baseA).fillStyle = '#fff'; ctx(baseA).fillRect(0,0,state.width,state.height); ctx(baseA).drawImage(state.a.image,0,0);
+    ctx(baseB).fillStyle = '#fff'; ctx(baseB).fillRect(0,0,state.width,state.height); ctx(baseB).drawImage(state.b.image,0,0,state.bWidth,state.bHeight);
+    dataA = ctx(baseA).getImageData(0,0,state.width,state.height).data;
+    dataB = ctx(baseB).getImageData(0,0,state.width,state.height).data;
+    $('emptyState').hidden = true; $('imageStage').hidden = false;
+    $('canvasSize').textContent = `${state.width} × ${state.height}`;
+    const notices = [];
+    if (state.sizeMode === 'width' && state.a.width !== state.b.width) notices.push(`網頁圖已按 ${Math.round(state.bWidth / state.b.width * 10000)/100}% 等比例縮放；插值會影響像素色差。`);
+    if (state.a.width !== state.bWidth || state.a.height !== state.bHeight) notices.push(`尺寸不一致：設計稿 ${state.a.width} × ${state.a.height}，網頁 ${state.bWidth} × ${state.bHeight}。左上對齊，單側缺失區計入差異。`);
+    $('dimensionNotice').textContent = notices.join(' '); $('dimensionNotice').hidden = notices.length === 0;
+    applyZoom(); draw(); calculate();
+  }
+  function calculate() {
+    if (!hasPair()) return;
+    clearTimeout(pending); state.result = null; state.busy = true; resetApproval();
+    $('exportDiff').disabled = true; $('exportReport').disabled = true;
+    $('ratio').textContent = '…'; $('changed').textContent = '…'; $('canvasStatus').textContent = '正在計算像素差異…';
+    pending = setTimeout(() => {
+      try {
+        const result = PixelCompare.compare({ a: dataA, b: dataB, width: state.width, height: state.height, threshold: state.threshold, region: state.region, ignores: state.ignores, aSize: {width:state.a.width,height:state.a.height}, bSize:{width:state.bWidth,height:state.bHeight} });
+        state.result = result; ctx(diff).putImageData(new ImageData(result.data,state.width,state.height),0,0);
+        $('ratio').innerHTML = result.ratio === null ? '—' : `${(result.ratio * 100).toFixed(2)}<small>%</small>`;
+        $('changed').textContent = number(result.changed);
+        $('compared').textContent = result.compared ? `共 ${number(result.compared)} 個有效比較像素` : '沒有有效比較像素，請調整範圍';
+        $('ignored').innerHTML = `${state.ignores.length}<small>區</small>`;
+        $('ignoredPixels').textContent = `排除 ${number(result.ignored)} 個範圍內像素`;
+        $('canvasStatus').textContent = result.ratio === null ? '所有像素已排除，沒有可比較的內容' : `比對完成 · ${state.region ? '所選範圍' : '整張圖片'}${state.a.demo || state.b.demo ? ' · 示範資料' : ''}`;
+        $('exportDiff').disabled = false; $('exportReport').disabled = false;
+      } catch (e) { $('canvasStatus').textContent = '比對失敗，請減少圖片尺寸後重試'; toast(e.message); }
+      state.busy = false; draw();
+    }, 55);
+  }
+  function setMode(mode) {
+    state.mode = mode;
+    document.querySelectorAll('[data-mode]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));
+    $('figureB').hidden = mode !== 'side';
+    $('modeControls').hidden = !['overlay','wipe'].includes(mode);
+    $('blendLabel').textContent = mode === 'wipe' ? '分界線位置' : '網頁透明度';
+    $('modeHelp').textContent = mode === 'wipe' ? '左側設計稿，右側網頁；可直接拖曳圖片' : '設計稿在下方，網頁在上方';
+    $('captionA').textContent = {side:'Figma 設計稿',overlay:'設計稿 + 網頁疊圖',wipe:'Figma 設計稿 ↔ 實際網頁',diff:'差異圖 · 粉紅色為差異像素'}[mode];
+    applyZoom(); draw(); updateCursor();
+  }
+  function applyZoom() {
+    if (!hasPair()) return;
+    const available = Math.max(120,$('viewport').clientWidth - (window.innerWidth <= 760 ? 32 : 48));
+    state.scale = $('zoom').value === 'fit' ? Math.min(1, (available - (state.mode === 'side' ? 20 : 0)) / ((state.mode === 'side' ? 2 : 1) * state.width)) : Number($('zoom').value);
+    for (const suffix of ['A','B']) {
+      $('canvas' + suffix).style.width = state.width * state.scale + 'px'; $('canvas' + suffix).style.height = state.height * state.scale + 'px';
+      $('wrap' + suffix).style.width = state.width * state.scale + 'px';
+    }
+    drawMarks();
+  }
+  function draw() {
+    if (!hasPair()) return;
+    const out = ctx($('canvasA')); out.globalAlpha = 1; out.clearRect(0,0,state.width,state.height);
+    if (state.mode === 'diff' && state.result) out.drawImage(diff,0,0);
+    else {
+      out.drawImage(baseA,0,0);
+      if (state.mode === 'overlay') { out.globalAlpha = state.blend / 100; out.drawImage(baseB,0,0); out.globalAlpha = 1; }
+      if (state.mode === 'wipe') { out.save(); out.beginPath(); out.rect(state.width * state.blend / 100,0,state.width,state.height); out.clip(); out.drawImage(baseB,0,0); out.restore(); }
+    }
+    if (state.mode === 'side') ctx($('canvasB')).drawImage(baseB,0,0);
+    $('wipeHandle').hidden = state.mode !== 'wipe'; $('wipeHandle').style.left = state.blend + '%';
+    drawMarks();
+  }
+  function svgNode(tag,attrs) { const el = document.createElementNS('http://www.w3.org/2000/svg',tag); Object.entries(attrs).forEach(([key,value]) => el.setAttribute(key,value)); return el; }
+  function drawMarks() {
+    if (!hasPair()) return;
+    for (const id of ['marksA','marksB']) {
+      const svg = $(id); svg.replaceChildren(); svg.setAttribute('viewBox',`0 0 ${state.width} ${state.height}`);
+      const stroke = 1.5 / state.scale;
+      if (state.region) {
+        const {x,y,width:w,height:h} = state.region;
+        svg.append(svgNode('path',{d:`M0 0H${state.width}V${state.height}H0Z M${x} ${y}H${x+w}V${y+h}H${x}Z`,'fill-rule':'evenodd',fill:'#263b34',opacity:'.17'}));
+        svg.append(svgNode('rect',{x,y,width:w,height:h,fill:'none',stroke:'#326653','stroke-width':stroke}));
+      }
+      state.ignores.forEach((r,i) => {
+        svg.append(svgNode('rect',{x:r.x,y:r.y,width:r.width,height:r.height,fill:'#dba04a','fill-opacity':'.18',stroke:'#c48e41','stroke-width':stroke,'stroke-dasharray':`${4/state.scale} ${3/state.scale}`}));
+        const t = svgNode('text',{x:r.x+4/state.scale,y:r.y+13/state.scale,'font-size':10/state.scale,fill:'#976b2f','font-family':'sans-serif'}); t.textContent = `忽略 ${i+1}`; svg.append(t);
+      });
+      if (state.draft) { const r = state.draft; svg.append(svgNode('rect',{x:r.x,y:r.y,width:r.width,height:r.height,fill:state.tool==='ignore'?'#dba04a':'#326653','fill-opacity':'.16',stroke:state.tool==='ignore'?'#b17f38':'#326653','stroke-width':stroke,'stroke-dasharray':`${4/state.scale} ${3/state.scale}`})); }
+    }
+  }
+  function updateCursor() { ['wrapA','wrapB'].forEach(id => { $(id).classList.toggle('drawing',!!state.tool); $(id).classList.toggle('wiping',!state.tool && state.mode === 'wipe'); }); }
+  function setTool(tool) { state.tool = tool; state.draft = null; $('regionTool').setAttribute('aria-pressed',String(tool === 'region')); $('ignoreTool').setAttribute('aria-pressed',String(tool === 'ignore')); $('toolHint').textContent = tool ? `在圖片上拖曳${tool === 'region' ? '比較' : '忽略'}區域。Esc 取消。` : '選取工具後，在圖片上拖曳矩形。Esc 取消。'; updateCursor(); drawMarks(); }
+  function addRect(rect,type) {
+    const valid = PixelCompare.normalizeRect(rect,state.width,state.height);
+    if (!valid) { toast('區域必須落在圖片內，且寬高大於 0。'); return; }
+    if (type === 'region') state.region = valid;
+    else { if (state.ignores.length >= 50) { toast('最多支援 50 個忽略區域。'); return; } state.ignores.push(valid); }
+    state.draft = null; updateRegions(); drawMarks(); calculate();
+  }
+  function updateRegions() {
+    $('clearRegions').disabled = !state.region && !state.ignores.length;
+    const list = $('regionList'); list.replaceChildren();
+    if (!state.region && !state.ignores.length) { const p = document.createElement('p'); p.className='no-region'; p.textContent='目前比對整張圖片'; list.append(p); return; }
+    function row(r,label,remove) { const div = document.createElement('div'); div.className='region-item'; const text = document.createElement('span'); text.textContent=label; const detail=document.createElement('small'); detail.textContent=`${r.x},${r.y} · ${r.width}×${r.height}`; const button=document.createElement('button'); button.type='button';button.textContent='×';button.setAttribute('aria-label',`移除${label}`);button.onclick=remove;div.append(text,detail,button);list.append(div); }
+    if (state.region) row(state.region,'比較範圍',()=>{state.region=null;updateRegions();drawMarks();calculate();});
+    state.ignores.forEach((r,i)=>row(r,`忽略 ${i+1}`,()=>{state.ignores.splice(i,1);updateRegions();drawMarks();calculate();}));
+  }
+  function setBlend(value) { state.blend=Math.max(0,Math.min(100,Math.round(value)));$('blend').value=state.blend;$('blendValue').textContent=state.blend+'%';draw(); }
+  ['wrapA','wrapB'].forEach(id=>{
+    const wrap=$(id); let start=null, pointerId=null, drawingTool=null;
+    const point=e=>{const box=wrap.getBoundingClientRect();return {x:Math.max(0,Math.min(state.width,(e.clientX-box.left)/state.scale)),y:Math.max(0,Math.min(state.height,(e.clientY-box.top)/state.scale))};};
+    wrap.addEventListener('pointerdown',e=>{if(!hasPair()||e.button!==0)return; if(!state.tool&&state.mode!=='wipe')return; e.preventDefault();pointerId=e.pointerId;wrap.setPointerCapture(pointerId);start=point(e);drawingTool=state.tool;if(!drawingTool)setBlend(start.x/state.width*100);});
+    wrap.addEventListener('pointermove',e=>{if(!hasPair())return;const p=point(e);$('coordStatus').textContent=`X ${Math.round(p.x)} · Y ${Math.round(p.y)} px`;if(!start||e.pointerId!==pointerId)return;if(!drawingTool){setBlend(p.x/state.width*100);return;}state.draft=PixelCompare.normalizeRect({x:start.x,y:start.y,width:p.x-start.x,height:p.y-start.y},state.width,state.height);drawMarks();});
+    wrap.addEventListener('pointerup',e=>{if(!start||e.pointerId!==pointerId)return;const p=point(e),from=start,type=drawingTool;start=null;pointerId=null;drawingTool=null;if(wrap.hasPointerCapture(e.pointerId))wrap.releasePointerCapture(e.pointerId);if(type&&state.tool===type&&Math.abs(p.x-from.x)*state.scale>=3&&Math.abs(p.y-from.y)*state.scale>=3)addRect({x:from.x,y:from.y,width:p.x-from.x,height:p.y-from.y},type);state.draft=null;drawMarks();});
+    wrap.addEventListener('pointercancel',()=>{start=null;pointerId=null;drawingTool=null;state.draft=null;drawMarks();});
+    wrap.addEventListener('lostpointercapture',()=>{start=null;pointerId=null;drawingTool=null;state.draft=null;drawMarks();});
+  });
+  function download(blob,name) { const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000); }
+  function canvasDownload(canvas,name) { canvas.toBlob(blob=>{if(blob)download(blob,name);else toast('圖片匯出失敗，請減少圖片尺寸。');},'image/png'); }
+  function report() {
+    const r=state.result;
+    const source=s=>({name:s.name,width:s.width,height:s.height,bytes:s.fileBytes,demo:s.demo});
+    return {schemaVersion:1,tool:'Framecheck',createdAt:new Date().toISOString(),reference:source(state.a),web:source(state.b),canvas:{width:state.width,height:state.height},settings:{threshold:state.threshold,algorithm:'max RGB channel delta > threshold; alpha composited on white; missing source area is always changed',sizeMode:state.sizeMode,effectiveWebSize:{width:state.bWidth,height:state.bHeight},region:state.region,ignores:state.ignores},result:{changed:r.changed,compared:r.compared,ignored:r.ignored,ratio:r.ratio,bounds:r.bounds},review:{approved:$('approved').checked,note:$('reviewNote').value},notice:'像素差異比例不等於設計還原度分數。忽略區域與比較範圍以合成畫布像素為單位。'};
+  }
+  function drawDemo(variant) {
+    const c=document.createElement('canvas');c.width=960;c.height=680;const x=ctx(c);
+    const box=(left,top,w,h,color,r=0)=>{x.fillStyle=color;x.beginPath();x.roundRect(left,top,w,h,r);x.fill();};
+    const text=(str,left,top,size=14,color='#566356',weight=400)=>{x.font=`${weight} ${size}px "Segoe UI", "Microsoft JhengHei", sans-serif`;x.fillStyle=color;x.fillText(str,left,top);};
+    box(0,0,960,680,'#f5f7f2');box(0,0,960,70,'#fff');text('folio.',32,44,24,'#315c48',700);text('工作空間',185,41,13);text('專案',291,41,13);text('團隊',355,41,13);box(822,23,105,28,'#e8efe4',14);text(variant?'Hello, Alex':'Hello, Jamie',837,42,12,'#4d6c44');
+    text('WORKSPACE / OVERVIEW',42,115,10,'#91a186',600);text('專案總覽',42,158,29,'#263d2c',600);text('把每個想法，變成值得期待的作品。',43,187,13,'#83917a');
+    box(784,131,132,39,variant?'#648662':'#355d46',7);text('＋ 建立新專案',800,156,13,'#fff',500);
+    [['進行中的專案','12','本月新增 3 個'],['待確認項目','08','需要你的回覆'],['完成率','86%','較上月增加 12%']].forEach((v,i)=>{const left=42+i*295,top=226;box(left,top,281,115,'#fff',9);text(v[0],left+20,top+28,12,'#86957d');text(v[1],left+20,top+69,30,'#2f4f37',600);text(v[2],left+20,top+94,11,'#8e9d85');});
+    text('最近的專案',43,389,16,'#324b36',600);text('查看全部 →',843,389,11,'#78906c');
+    const shift=variant?12:0;
+    [['品牌網站改版','設計系統 / 網頁設計','#e4eadd'],['會員中心優化','介面設計 / 使用者體驗','#ebe6db'],['年度視覺計畫','品牌策略 / 視覺設計','#e0e7e9']].forEach((v,i)=>{const left=42+i*295,top=412+(i===1?shift:0);box(left,top,281,224,'#fff',9);box(left+12,top+12,257,119,v[2],6);box(left+67,top+35,145,76,'#ffffff99',5);box(left+79,top+48,70,8,'#a4b69d',2);box(left+79,top+66,116,4,'#d3ddce',2);box(left+79,top+77,90,4,'#d3ddce',2);box(left+79,top+90,36,10,'#79956d',2);text(v[0],left+17,top+157,14,'#42583c',600);text(v[1],left+17,top+179,11,'#8b9980');box(left+17,top+195,47,17,'#ecf1e7',8);text('進行中',left+23,top+207,9,'#79916a');text(variant?'10/28 更新':'10/26 更新',left+193,top+207,9,'#9aa690');});
+    if(variant){box(344,270,100,32,'#fff');text('09',357,295,30,'#2f4f37',600);}
+    return c;
+  }
+  async function demo() {
+    const sequence = { a: ++loadSequence.a, b: ++loadSequence.b };
+    try {
+      const pair=await Promise.all([false,true].map(async variant=>{const canvas=drawDemo(variant);const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));return {image:canvas,width:canvas.width,height:canvas.height,name:variant?'demo-web.png':'demo-design.png',url:URL.createObjectURL(blob),fileBytes:blob.size,demo:true};}));
+      if (sequence.a !== loadSequence.a || sequence.b !== loadSequence.b) { pair.forEach(source=>URL.revokeObjectURL(source.url)); return; }
+      for(const key of ['a','b'])if(state[key]?.url)URL.revokeObjectURL(state[key].url);
+      state.a=pair[0];state.b=pair[1];state.sizeMode='original';$('sizeMode').value='original';resetRegions();updateSource('a');updateSource('b');switchTab('a');preparePair();toast('示範圖片已加入：試試疊圖，看看中間卡片的位置。');
+    } catch(e){toast('示範載入失敗：'+e.message);}
+  }
+  function switchTab(tab) { const isA=tab==='a';$('panelA').hidden=!isA;$('panelB').hidden=isA;for(const [id,active] of [['tabA',isA],['tabB',!isA]]){$(id).setAttribute('aria-selected',String(active));$(id).tabIndex=active?0:-1;} if(isA)requestAnimationFrame(applyZoom); }
+  function settings() { return {url:$('testUrl').value.trim(),viewport:{width:Number($('testWidth').value),height:Number($('testHeight').value)},maskSelectors:$('maskSelectors').value.split('\n').map(s=>s.trim()).filter(Boolean),readySelector:$('readySelector').value.trim()}; }
+  function previewSettings() { $('settingsPreview').textContent=JSON.stringify(settings(),null,2); }
+  // ZIP STORE format: no external library and no network. UTF-8 entry names and CRC-32.
+  function zipFiles(files) {
+    const encoder=new TextEncoder();const locals=[],centrals=[];let offset=0;
+    const table=new Uint32Array(256);for(let i=0;i<256;i++){let c=i;for(let j=0;j<8;j++)c=c&1?0xedb88320^(c>>>1):c>>>1;table[i]=c>>>0;}
+    for(const [name,content] of Object.entries(files)){
+      const filename=encoder.encode(name),bytes=encoder.encode(content);let crc=0xffffffff;for(const byte of bytes)crc=table[(crc^byte)&255]^(crc>>>8);crc=(crc^0xffffffff)>>>0;
+      const local=new Uint8Array(30+filename.length),l=new DataView(local.buffer);l.setUint32(0,0x04034b50,true);l.setUint16(4,20,true);l.setUint16(6,0x0800,true);l.setUint16(12,33,true);l.setUint32(14,crc,true);l.setUint32(18,bytes.length,true);l.setUint32(22,bytes.length,true);l.setUint16(26,filename.length,true);local.set(filename,30);locals.push(local,bytes);
+      const central=new Uint8Array(46+filename.length),v=new DataView(central.buffer);v.setUint32(0,0x02014b50,true);v.setUint16(4,20,true);v.setUint16(6,20,true);v.setUint16(8,0x0800,true);v.setUint16(14,33,true);v.setUint32(16,crc,true);v.setUint32(20,bytes.length,true);v.setUint32(24,bytes.length,true);v.setUint16(28,filename.length,true);v.setUint32(42,offset,true);central.set(filename,46);centrals.push(central);offset+=local.length+bytes.length;
+    }
+    const centralLength=centrals.reduce((total,b)=>total+b.length,0),end=new Uint8Array(22),e=new DataView(end.buffer);e.setUint32(0,0x06054b50,true);e.setUint16(8,centrals.length,true);e.setUint16(10,centrals.length,true);e.setUint32(12,centralLength,true);e.setUint32(16,offset,true);return new Blob([...locals,...centrals,end],{type:'application/zip'});
+  }
+  for(const key of ['a','b']){
+    const suffix=key.toUpperCase();$('file'+suffix).addEventListener('change',e=>{importFile(e.target.files[0],key);e.target.value='';});
+    const drop=$('drop'+suffix);drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('drag-over');});drop.addEventListener('dragleave',()=>drop.classList.remove('drag-over'));drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('drag-over');if(e.dataTransfer.files.length>1)toast('每個來源一次選擇一張圖片。');else importFile(e.dataTransfer.files[0],key);});
+  }
+  window.addEventListener('dragover',e=>e.preventDefault());window.addEventListener('drop',e=>e.preventDefault());
+  document.querySelectorAll('[data-mode]').forEach(button=>button.addEventListener('click',()=>setMode(button.dataset.mode)));
+  $('zoom').addEventListener('change',applyZoom);new ResizeObserver(()=>{if(!$('panelA').hidden)applyZoom();}).observe($('viewport'));
+  $('blend').addEventListener('input',e=>setBlend(Number(e.target.value)));
+  $('threshold').addEventListener('input',e=>{state.threshold=Number(e.target.value);$('thresholdValue').textContent=`${state.threshold} / 255`;calculate();});
+  $('sizeMode').addEventListener('change',e=>{try{safeDimensions(state.a,state.b,e.target.value);state.sizeMode=e.target.value;resetRegions();preparePair();}catch(error){e.target.value=state.sizeMode;toast(error.message);}});
+  $('regionTool').onclick=()=>setTool(state.tool==='region'?null:'region');$('ignoreTool').onclick=()=>setTool(state.tool==='ignore'?null:'ignore');
+  $('clearRegions').onclick=()=>{resetRegions();calculate();drawMarks();};
+  for(const [id,type] of [['addRegion','region'],['addIgnore','ignore']])$(id).onclick=()=>{const r={x:Number($('rectX').value),y:Number($('rectY').value),width:Number($('rectW').value),height:Number($('rectH').value)};if(!Object.values(r).every(Number.isFinite)||r.width<=0||r.height<=0||r.x<0||r.y<0){toast('請輸入有效的非負座標與正數寬高。');return;}addRect(r,type);};
+  $('exportDiff').onclick=()=>{if(state.result)canvasDownload(diff,'framecheck-diff.png');};
+  $('exportReport').onclick=()=>{if(state.result)download(new Blob([JSON.stringify(report(),null,2)],{type:'application/json'}),'framecheck-report.json');};
+  $('approved').onchange=()=>{$('saveBaseline').disabled=!$('approved').checked||!hasPair();};
+  $('saveBaseline').onclick=()=>{if(!$('approved').checked||!state.b)return;const c=document.createElement('canvas');c.width=state.b.width;c.height=state.b.height;ctx(c).drawImage(state.b.image,0,0);canvasDownload(c,'approved-web-baseline.png');toast('已保存原始網頁 PNG。請同時下載比對報告，留存核准紀錄。');};
+  $('demoButton').onclick=demo;$('emptyDemo').onclick=demo;$('emptyUpload').onclick=()=>$(state.a?'fileB':'fileA').click();
+  $('tabA').onclick=()=>switchTab('a');$('tabB').onclick=()=>switchTab('b');
+  for(const id of ['tabA','tabB'])$(id).addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight','Home','End'].includes(e.key)){e.preventDefault();const tab=e.key==='Home'?'a':e.key==='End'?'b':id==='tabA'?'b':'a';switchTab(tab);$(tab==='a'?'tabA':'tabB').focus();}});
+  $('regressionForm').addEventListener('input',previewSettings);
+  $('regressionForm').addEventListener('submit',e=>{e.preventDefault();const values=settings();try{const url=new URL(values.url);if(!['http:','https:'].includes(url.protocol))throw new Error();}catch{toast('請輸入 http 或 https 網址。');return;}if(!Number.isInteger(values.viewport.width)||!Number.isInteger(values.viewport.height)){toast('畫面尺寸請使用整數。');return;}const files={...REGRESSION_TEMPLATES,'regression.settings.json':JSON.stringify(values,null,2)+'\n'};download(zipFiles(files),'framecheck-playwright.zip');toast('範本已下載。解壓縮後請先閱讀 README.md。');});
+  $('helpButton').onclick=()=>{if(!$('helpDialog').open)$('helpDialog').showModal();};$('closeHelp').onclick=()=>$('helpDialog').close();$('helpDone').onclick=()=>$('helpDialog').close();
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')setTool(null);});
+  previewSettings();
+})();
+</script>
+</body>
+</html>

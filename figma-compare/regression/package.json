@@ -1,0 +1,14 @@
+{
+  "name": "figma-compare-visual-regression",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "test": "playwright test",
+    "capture": "node scripts/capture.mjs",
+    "approve": "node scripts/approve.mjs",
+    "report": "playwright show-report"
+  },
+  "devDependencies": { "@playwright/test": "1.64.1" }
+}

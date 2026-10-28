@@ -1,0 +1,11 @@
+{
+  "name": "framecheck",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Offline Figma and webpage image comparison tool",
+  "scripts": {
+    "build": "node build.cjs",
+    "test": "node --test tests/diff-core.test.cjs"
+  },
+  "engines": { "node": ">=20" }
+}
