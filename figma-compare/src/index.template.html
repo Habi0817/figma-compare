@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="Figma 設計稿與網頁截圖的本機視覺比對工具。離線操作、無 CDN、圖片不上傳。">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src blob: data:; connect-src 'none'; font-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src blob: data:; media-src blob:; connect-src 'none'; font-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <title>Framecheck｜設計與網頁比對工具</title>
 <style>/* STYLES */</style>
 </head>
@@ -18,15 +18,24 @@
   <div class="page-heading"><div><div class="eyebrow">VISUAL REVIEW WORKSPACE</div><h1>把設計與實作，放在一起看。</h1><p>從首次驗收，到每一次安心的修改。</p></div><button class="button secondary" id="demoButton"><span aria-hidden="true">◉</span> 載入示範圖片</button></div>
   <div class="workflow-tabs" role="tablist" aria-label="工作流程"><button role="tab" id="tabA" aria-selected="true" aria-controls="panelA"><span class="step-letter">A</span> 首次設計驗收 <span class="tab-note">Figma → 網頁</span></button><button role="tab" id="tabB" aria-selected="false" aria-controls="panelB" tabindex="-1"><span class="step-letter">B</span> 後續回歸測試 <span class="tab-note">已核准基準 → 新版本</span></button></div>
   <section id="panelA" role="tabpanel" aria-labelledby="tabA">
+    <div class="capture-entry"><div><strong>不必先裁出一樣大的圖片</strong><p>擷取網頁畫面 → 兩邊各選同一元件 → 確認倍率 → 對齊驗收</p></div><button class="button primary" id="startCapture">▣ 擷取網頁分頁</button><div class="paste-target"><span id="pasteTargetLabel">貼上圖片至</span><div class="paste-target-buttons" role="group" aria-labelledby="pasteTargetLabel"><button type="button" id="pasteToDesign" aria-pressed="false">Figma 設計稿</button><button type="button" id="pasteToWeb" aria-pressed="true">網頁截圖</button></div><small id="pasteHint" aria-live="polite">Ctrl / ⌘ + V → 網頁截圖</small></div></div>
+    <p id="captureStatus" class="capture-status" role="status">分享時請選受測網站分頁；只擷取可見畫面，不會讀取 DOM 或自動捲動。</p>
     <div class="workspace-grid">
       <aside class="sidebar">
         <div class="section-heading"><h2>比對來源</h2><span class="small-label">01 / IMPORT</span></div>
         <div class="upload-card" id="dropA"><div class="upload-top"><span class="source-tag">A</span><strong>Figma 設計稿</strong><span class="file-type">參考圖</span></div><input type="file" id="fileA" accept="image/png,image/jpeg,image/webp" class="visually-hidden"><label for="fileA" class="drop-label"><span class="upload-icon" aria-hidden="true">＋</span><span id="nameA">選擇或拖放圖片</span><small id="metaA">PNG、JPG、WebP</small></label><img id="thumbA" alt="設計稿縮圖" hidden></div>
         <div class="upload-card" id="dropB"><div class="upload-top"><span class="source-tag green">B</span><strong>實際網頁截圖</strong><span class="file-type">待驗收</span></div><input type="file" id="fileB" accept="image/png,image/jpeg,image/webp" class="visually-hidden"><label for="fileB" class="drop-label"><span class="upload-icon" aria-hidden="true">＋</span><span id="nameB">選擇或拖放圖片</span><small id="metaB">建議與設計稿相同尺寸</small></label><img id="thumbB" alt="網頁截圖縮圖" hidden></div>
-        <div class="upload-tip">Figma 請匯出 1× PNG；網頁截圖請使用相同的畫面尺寸。</div>
+        <div class="component-tools"><button id="cropA" class="button secondary" disabled>① 選設計稿元件</button><button id="cropB" class="button secondary" disabled>② 選網頁元件</button></div>
+        <p class="field-help" id="cropSummary">先加入圖片，再各自圈選同一元件；保留原圖。</p><button id="resetAlignment" class="text-button" disabled>恢復整圖與原始倍率</button>
         <div class="sidebar-divider"></div>
         <div class="section-heading"><h2>比對設定</h2><span class="small-label">02 / ADJUST</span></div>
-        <label class="field-label" for="sizeMode">圖片尺寸</label><select id="sizeMode"><option value="original">原始像素・左上對齊</option><option value="width">網頁等比例縮放至設計稿寬度</option></select>
+        <select id="sizeMode" hidden><option value="original">保留尺寸</option></select>
+        <details class="calibration" open><summary>比例校正與位置對齊</summary><p class="field-help">只校正截圖倍率，不會把元件拉成同尺寸。兩邊需使用相同版型斷點。</p>
+        <label class="field-label" for="designRatio">Figma 匯出倍率</label><input id="designRatio" type="number" min="0.1" max="8" step="0.1" value="1">
+        <label class="field-label" for="frameWidth">或填整張 Frame 設計寬度</label><div class="inline-fields"><input id="frameWidth" type="number" min="1" placeholder="例如 1440"><button id="useFrameWidth" class="button secondary">換算倍率</button></div>
+        <label class="field-label" for="webRatio">網頁圖片像素 / CSS px（已知才填）</label><input id="webRatio" type="number" min="0.1" max="8" step="0.1" value="1"><label class="check-label"><input id="webRatioKnown" type="checkbox">我已確認網頁擷取倍率</label><p class="field-help">不確定時保留 1，以圖片像素檢視。分享影像可能縮放，無法自動推定 CSS 尺寸。</p>
+        <div class="two-fields"><label>網頁 X 位移<input id="offsetX" type="number" step="1" value="0"></label><label>網頁 Y 位移<input id="offsetY" type="number" step="1" value="0"></label></div>
+        <button id="applyAlignment" class="button primary wide">套用倍率與位移</button><div class="component-tools"><button id="alignTopLeft" class="button secondary">左上對齊</button><button id="alignCenter" class="button secondary">中心對齊</button></div><p id="sizeComparison" class="field-help">尺寸差異會保留；手動框選邊界屬估測。</p></details>
         <div class="range-heading"><label for="threshold">像素色差容許值</label><output for="threshold" id="thresholdValue">16 / 255</output></div><input id="threshold" type="range" min="0" max="255" value="16"><p class="field-help">調高可略過細微色差；不會修正位置偏移。</p>
         <div class="sidebar-divider"></div>
         <div class="section-heading"><h2>比較範圍</h2><button class="text-button small" id="clearRegions" disabled>全部重設</button></div>
@@ -41,14 +50,14 @@
           <div class="mode-controls" id="modeControls" hidden><label id="blendLabel" for="blend">網頁透明度</label><input id="blend" type="range" min="0" max="100" value="50"><output id="blendValue">50%</output><span class="mode-help" id="modeHelp">設計稿在下方，網頁在上方</span></div>
           <div id="dimensionNotice" class="dimension-notice" hidden></div>
           <div class="canvas-viewport" id="viewport">
-            <div class="empty-state" id="emptyState"><div class="empty-illustration" aria-hidden="true"><div class="mini-frame back"><div></div><i></i><i></i><b></b></div><div class="mini-frame front"><div></div><i></i><i></i><b></b></div><span class="crosshair">＋</span></div><span class="small-label">A LITTLE CHECK. A BETTER MATCH.</span><h2>每個好設計，都值得被好好實現。</h2><p id="emptyMessage">加入設計稿與網頁截圖，開始你的第一次比對。</p><button class="button primary" id="emptyUpload">選擇設計稿 <span aria-hidden="true">↗</span></button><button class="text-button" id="emptyDemo">先試試示範圖片 →</button></div>
+            <div class="empty-state" id="emptyState"><div class="empty-illustration" aria-hidden="true"><div class="mini-frame back"><div></div><i></i><i></i><b></b></div><div class="mini-frame front"><div></div><i></i><i></i><b></b></div><span class="crosshair">＋</span></div><span class="small-label">A LITTLE CHECK. A BETTER MATCH.</span><h2>每個好設計，都值得被好好實現。</h2><p id="emptyMessage">加入設計稿，再擷取網頁分頁或貼上圖片，開始比對。</p><button class="button primary" id="emptyUpload">選擇設計稿 <span aria-hidden="true">↗</span></button><button class="text-button" id="emptyDemo">先試試示範圖片 →</button></div>
             <div id="imageStage" class="image-stage" hidden><figure id="figureA"><figcaption><span class="legend-dot design"></span><span id="captionA">Figma 設計稿</span><span id="canvasSize"></span></figcaption><div class="image-wrap" id="wrapA"><canvas id="canvasA" aria-label="設計稿或合成比對圖片"></canvas><svg id="marksA" aria-hidden="true"></svg><div class="wipe-handle" id="wipeHandle" hidden><span>↔</span></div></div></figure><figure id="figureB"><figcaption><span class="legend-dot web"></span>實際網頁截圖</figcaption><div class="image-wrap" id="wrapB"><canvas id="canvasB" aria-label="網頁截圖"></canvas><svg id="marksB" aria-hidden="true"></svg></div></figure></div>
           </div>
           <div class="canvas-footer"><span id="canvasStatus"><span class="status-dot"></span> 等待加入兩張圖片</span><span id="coordStatus">座標以原始參考像素計算</span></div>
         </div>
         <div class="results-row"><div class="metric"><span>像素差異比例 <span class="info-dot" title="差異像素 ÷ 有效比較像素。這不是設計還原度分數。">i</span></span><strong id="ratio">—<small>%</small></strong><p>作為檢查線索，不是設計還原度分數</p></div><div class="metric"><span>差異像素</span><strong id="changed">—</strong><p id="compared">尚未開始計算</p></div><div class="metric"><span>忽略範圍</span><strong id="ignored">0<small>區</small></strong><p id="ignoredPixels">排除日期、名稱等動態內容</p></div></div>
         <div class="export-bar"><div><strong>留下這次比對的依據</strong><p>匯出差異圖與設定報告，讓溝通更清楚。</p></div><div><button class="button secondary" id="exportDiff" disabled>↓ 差異 PNG</button><button class="button primary" id="exportReport" disabled>↓ 比對報告</button></div></div>
-        <details class="approval-panel"><summary>驗收完成？保存網頁截圖作為回歸基準 <span>→</span></summary><p>請先人工檢查間距、對齊、換行與視覺層級。差異比例不會自動決定驗收結果。</p><label class="check-label"><input type="checkbox" id="approved" disabled>我已依設計稿確認這張網頁截圖，核准作為基準。</label><label for="reviewNote" class="field-label">驗收備註（選填）</label><textarea id="reviewNote" rows="2" placeholder="例如：登入表單已核准；右上日期列排除。"></textarea><button class="button primary" id="saveBaseline" disabled>↓ 保存已核准網頁 PNG</button><p class="field-help">這是原始網頁圖，不會套用疊圖或縮放。自動回歸請到 B，使用同一 Playwright 環境產生的候選圖完成驗收與核准。</p></details>
+        <details class="approval-panel"><summary>驗收完成？保存網頁截圖作為回歸基準 <span>→</span></summary><p>請先人工檢查間距、對齊、換行與視覺層級。差異比例不會自動決定驗收結果。</p><label class="check-label"><input type="checkbox" id="approved" disabled>我已確認整張原始網頁截圖（包含框選外區域），核准作為基準。</label><label for="reviewNote" class="field-label">驗收備註（選填）</label><textarea id="reviewNote" rows="2" placeholder="例如：登入表單已核准；右上日期列排除。"></textarea><button class="button primary" id="saveBaseline" disabled>↓ 保存已核准網頁 PNG</button><p class="field-help">這是原始網頁圖，不會套用疊圖或縮放。自動回歸請到 B，使用同一 Playwright 環境產生的候選圖完成驗收與核准。</p></details>
       </div>
     </div>
     <p class="workspace-note"><span aria-hidden="true">◇</span> 截圖能指出視覺差異；精確的 DOM、CSS 數值與原因，仍需要設計規格與 computed styles。</p>
@@ -60,10 +69,13 @@
   </section>
   <footer class="page-footer"><span>framecheck. <span>把差異看清楚，把設計做好。</span></span><span>無 CDN · 無 MCP · 可離線使用</span></footer>
 </main>
-<dialog id="helpDialog"><div class="dialog-heading"><h2>開始一次可靠的比對</h2><button class="icon-button" id="closeHelp" aria-label="關閉指南">×</button></div><ol><li><strong>準備同尺寸圖片</strong><p>有匯出權限的 Figma Frame 匯出為 1× PNG；以相同視窗尺寸取得網頁截圖。長頁面請使用一致的完整頁面高度。</p></li><li><strong>先看結構，再看細節</strong><p>並排確認整體；疊圖找位移；滑桿看同一區域；差異圖顯示像素色差。</p></li><li><strong>只比較真正重要的區域</strong><p>框選表單或導覽列；忽略日期和姓名。可拖曳框選，也能用座標輸入。</p></li><li><strong>人工核准後才建立基準</strong><p>像素比例不是設計還原度。確認視覺結果後保存網頁圖；到 B 下載自動回歸範本。</p></li></ol><div class="help-note">圖片只在這個分頁的記憶體中處理，不上傳、不寫入瀏覽器儲存空間。重新整理會清除圖片與設定。每張圖片最多 12 MB、12 百萬像素；合成畫布也受相同像素上限限制。建議使用 PNG 以避免壓縮雜訊。</div><button class="button primary" id="helpDone">開始比對</button></dialog>
+<dialog id="captureDialog"><div class="dialog-heading"><h2>確認要驗收的畫面</h2><button id="cancelCapture" class="icon-button" aria-label="停止分享並關閉">×</button></div><p>請先在受測分頁捲動到元件完整可見的位置，再回到這裡擷取。只取得這一刻的畫面，不錄音、不上傳。</p><video id="captureVideo" autoplay muted playsinline></video><p id="captureDimensions" class="field-help"></p><div class="dialog-actions"><button id="freezeCapture" class="button primary" disabled>擷取這一刻並停止分享</button><button id="stopCapture" class="button secondary">停止分享</button></div></dialog>
+<dialog id="cropDialog"><div class="dialog-heading"><h2 id="cropTitle">選取元件</h2><button id="closeCrop" class="icon-button" aria-label="取消元件選取">×</button></div><p>拖曳圈選完整元件，保留所需內距。兩張圖可選不同座標與尺寸。</p><div id="cropViewport"><canvas id="cropCanvas" aria-label="拖曳框選元件，或使用下方座標欄位"></canvas></div><div class="coordinate-grid"><label>X<input id="cropX" type="number" min="0"></label><label>Y<input id="cropY" type="number" min="0"></label><label>寬<input id="cropW" type="number" min="1"></label><label>高<input id="cropH" type="number" min="1"></label></div><div class="dialog-actions"><button id="applyCrop" class="button primary">使用所選元件</button><button id="fullCrop" class="button secondary">使用整張圖片</button></div></dialog>
+<dialog id="helpDialog"><div class="dialog-heading"><h2>開始一次可靠的比對</h2><button class="icon-button" id="closeHelp" aria-label="關閉指南">×</button></div><ol><li><strong>準備同尺寸圖片</strong><p>有匯出權限的 Figma Frame 匯出為 1× PNG；以相同視窗尺寸取得網頁截圖。長頁面請使用一致的完整頁面高度。</p></li><li><strong>先看結構，再看細節</strong><p>並排確認整體；疊圖找位移；滑桿看同一區域；差異圖顯示像素色差。</p></li><li><strong>只比較真正重要的區域</strong><p>用「選設計稿元件」與「選網頁元件」各自圈選對應內容，再校正倍率與位置。比較範圍和忽略區域則作用於對齊後的畫布。</p></li><li><strong>人工核准後才建立基準</strong><p>像素比例不是設計還原度。確認視覺結果後保存網頁圖；到 B 下載自動回歸範本。</p></li></ol><div class="help-note">圖片只在這個分頁的記憶體中處理，不上傳、不寫入瀏覽器儲存空間。重新整理會清除圖片與設定。每張圖片最多 12 MB、12 百萬像素；合成畫布也受相同像素上限限制。建議使用 PNG 以避免壓縮雜訊。</div><button class="button primary" id="helpDone">開始比對</button></dialog>
 <div id="toast" role="status" aria-live="polite" hidden></div>
 <script>/* CORE */</script>
 <script>/* TEMPLATES */</script>
 <script>/* APP */</script>
 </body>
 </html>
+

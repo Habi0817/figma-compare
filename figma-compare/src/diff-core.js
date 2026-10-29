@@ -29,10 +29,11 @@
   }
 
   function imageSize(size, width, height) {
-    if (size == null) return { width: width, height: height };
+    if (size == null) return { x:0, y:0, width: width, height: height };
     dimensions(size.width, size.height);
-    if (size.width > width || size.height > height) throw new RangeError('Image dimensions cannot exceed the canvas.');
-    return size;
+    var x = size.x === undefined ? 0 : size.x, y = size.y === undefined ? 0 : size.y;
+    if (!Number.isSafeInteger(x) || !Number.isSafeInteger(y) || x < 0 || y < 0 || x + size.width > width || y + size.height > height) throw new RangeError('Image rectangle cannot exceed the canvas.');
+    return { x:x, y:y, width:size.width, height:size.height };
   }
 
   function validatePixels(pixels, length, label) {
@@ -43,7 +44,7 @@
 
   /**
    * a/b are equally padded RGBA buffers with stride = width * 4.
-   * Optional aSize/bSize describe each original image, top-left aligned at (0,0).
+   * Optional aSize/bSize describe each original image, with optional nonnegative x/y offsets in the padded canvas.
    * Alpha is composited over white before measuring the maximum RGB distance.
    * threshold is a channel distance from 0..255, not a percentage.
    * Region limits eligible pixels; ignores exclude their union inside that region.
@@ -81,8 +82,8 @@
     for (var y = 0; y < height; y++) {
       for (var x = 0; x < width; x++) {
         var pixel = y * width + x, i = pixel * 4;
-        var hasA = x < aSize.width && y < aSize.height;
-        var hasB = x < bSize.width && y < bSize.height;
+        var hasA = x >= aSize.x && y >= aSize.y && x < aSize.x + aSize.width && y < aSize.y + aSize.height;
+        var hasB = x >= bSize.x && y >= bSize.y && x < bSize.x + bSize.width && y < bSize.y + bSize.height;
         var alphaA = a[i + 3] / 255, alphaB = b[i + 3] / 255;
         var ar = a[i] * alphaA + 255 * (1 - alphaA);
         var ag = a[i + 1] * alphaA + 255 * (1 - alphaA);

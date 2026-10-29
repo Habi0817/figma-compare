@@ -10,6 +10,6 @@ let html = read('src/index.template.html');
 html = html.replace('/* STYLES */',()=>read('src/styles.css'));
 html = html.replace('/* CORE */',()=>inline(read('src/diff-core.js')));
 html = html.replace('/* TEMPLATES */',()=>`const REGRESSION_TEMPLATES = ${JSON.stringify(templates).replace(/</g,'\\u003c')};`);
-html = html.replace('/* APP */',()=>inline(read('src/app.js')));
+html = html.replace('/* APP */',()=>inline(read('src/app.js').replace('/* WORKBENCH */',()=>read('src/workbench.js'))));
 fs.writeFileSync(path.join(root,'index.html'),html);
 console.log('Built self-contained index.html ('+Buffer.byteLength(html)+' bytes)');

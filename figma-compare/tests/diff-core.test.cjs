@@ -101,3 +101,15 @@ test('malformed input fails explicitly rather than yielding misleading metrics',
   assert.throws(() => compare({ a, b: a, width: 1, height: 1, aSize: { width: 2, height: 1 } }), RangeError);
 });
 
+
+test('offset rectangles count union coverage and exclude shared padding', () => {
+  const a=rgba(5,4),b=rgba(5,4);
+  const r=compare({a,b,width:5,height:4,threshold:255,aSize:{x:2,y:0,width:3,height:2},bSize:{x:0,y:2,width:3,height:2}});
+  assert.equal(r.compared,12);assert.equal(r.changed,12);assert.equal(r.ratio,1);
+});
+test('overlapping offset rectangles compare overlap and missing strips separately', () => {
+  const a=rgba(4,2),b=rgba(4,2);
+  const r=compare({a,b,width:4,height:2,aSize:{x:0,y:0,width:3,height:2},bSize:{x:1,y:0,width:3,height:2}});
+  assert.equal(r.compared,8);assert.equal(r.changed,4);assert.equal(r.ratio,.5);
+  assert.throws(()=>compare({a,b,width:4,height:2,aSize:{x:-1,y:0,width:3,height:2}}),RangeError);
+});

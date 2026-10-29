@@ -4,6 +4,7 @@
   const MAX_PIXELS = 12000000, MAX_FILE = 12 * 1024 * 1024, MAX_SIDE = 16384;
   const state = { a: null, b: null, width: 0, height: 0, bWidth: 0, bHeight: 0, mode: 'side', blend: 50, threshold: 16, sizeMode: 'original', region: null, ignores: [], tool: null, draft: null, result: null, scale: 1, busy: false };
   const baseA = document.createElement('canvas'), baseB = document.createElement('canvas'), diff = document.createElement('canvas');
+  let workbench;
   let dataA, dataB, pending, toastTimer, loadSequence = { a: 0, b: 0 };
   const number = n => n.toLocaleString('zh-TW');
   const ctx = c => c.getContext('2d', { willReadFrequently: true });
@@ -13,9 +14,10 @@
   function safeDimensions(a, b, mode) {
     let bw = b?.width || 0, bh = b?.height || 0;
     if (a && b && mode === 'width') { bw = a.width; bh = Math.max(1, Math.round(b.height * a.width / b.width)); }
-    const width = Math.max(a?.width || 0, bw), height = Math.max(a?.height || 0, bh);
+    const dx=b?.offsetX||0,dy=b?.offsetY||0,ax=Math.max(0,-dx),ay=Math.max(0,-dy),bx=Math.max(0,dx),by=Math.max(0,dy);
+    const width = Math.max((a?.width || 0)+ax,bw+bx), height = Math.max((a?.height || 0)+ay,bh+by);
     if (width * height > MAX_PIXELS || width > MAX_SIDE || height > MAX_SIDE) throw new Error('合成畫布超過 1,200 萬像素或單邊 16,384 px，請先裁切圖片或改用較小的截圖。');
-    return { width, height, bw, bh };
+    return { width, height, bw, bh, ax, ay, bx, by };
   }
   function resetRegions() { state.region = null; state.ignores = []; state.draft = null; setTool(null); updateRegions(); }
   async function importFile(file, key) {
@@ -34,8 +36,9 @@
       safeDimensions(key === 'a' ? source : state.a, key === 'b' ? source : state.b, state.sizeMode);
       if (state[key]?.url) URL.revokeObjectURL(state[key].url);
       state[key] = source;
+      workbench?.sourceChanged(key, source);
       resetRegions(); resetApproval(); updateSource(key); preparePair();
-      toast(`${key === 'a' ? '設計稿' : '網頁截圖'}已加入`);
+      toast(`${key === 'a' ? '設計稿' : '網頁截圖'}已加入`); return true;
     } catch (e) { if (url) URL.revokeObjectURL(url); if (sequence === loadSequence[key]) toast(e.name === 'EncodingError' ? '無法解碼這張圖片，請確認檔案沒有損毀。' : e.message || '無法讀取圖片，請確認檔案沒有損毀。'); }
   }
   function updateSource(key) {
@@ -61,17 +64,17 @@
       return;
     }
     const dims = safeDimensions(state.a, state.b, state.sizeMode);
-    Object.assign(state, { width: dims.width, height: dims.height, bWidth: dims.bw, bHeight: dims.bh });
+    Object.assign(state, { width: dims.width, height: dims.height, bWidth: dims.bw, bHeight: dims.bh, ax:dims.ax, ay:dims.ay, bx:dims.bx, by:dims.by });
     [baseA,baseB,diff,$('canvasA'),$('canvasB')].forEach(c => { c.width = state.width; c.height = state.height; });
-    ctx(baseA).fillStyle = '#fff'; ctx(baseA).fillRect(0,0,state.width,state.height); ctx(baseA).drawImage(state.a.image,0,0);
-    ctx(baseB).fillStyle = '#fff'; ctx(baseB).fillRect(0,0,state.width,state.height); ctx(baseB).drawImage(state.b.image,0,0,state.bWidth,state.bHeight);
+    ctx(baseA).fillStyle = '#fff'; ctx(baseA).fillRect(0,0,state.width,state.height); ctx(baseA).drawImage(state.a.image,dims.ax,dims.ay);
+    ctx(baseB).fillStyle = '#fff'; ctx(baseB).fillRect(0,0,state.width,state.height); ctx(baseB).drawImage(state.b.image,dims.bx,dims.by,state.bWidth,state.bHeight);
     dataA = ctx(baseA).getImageData(0,0,state.width,state.height).data;
     dataB = ctx(baseB).getImageData(0,0,state.width,state.height).data;
     $('emptyState').hidden = true; $('imageStage').hidden = false;
     $('canvasSize').textContent = `${state.width} × ${state.height}`;
-    const notices = [];
+    const notices = workbench ? [workbench.notice()] : [];
     if (state.sizeMode === 'width' && state.a.width !== state.b.width) notices.push(`網頁圖已按 ${Math.round(state.bWidth / state.b.width * 10000)/100}% 等比例縮放；插值會影響像素色差。`);
-    if (state.a.width !== state.bWidth || state.a.height !== state.bHeight) notices.push(`尺寸不一致：設計稿 ${state.a.width} × ${state.a.height}，網頁 ${state.bWidth} × ${state.bHeight}。左上對齊，單側缺失區計入差異。`);
+    if (state.a.width !== state.bWidth || state.a.height !== state.bHeight) notices.push(`尺寸不一致：設計稿 ${state.a.width} × ${state.a.height}，網頁 ${state.bWidth} × ${state.bHeight}。保留各自尺寸，單側缺失區計入差異。`);
     $('dimensionNotice').textContent = notices.join(' '); $('dimensionNotice').hidden = notices.length === 0;
     applyZoom(); draw(); calculate();
   }
@@ -82,7 +85,7 @@
     $('ratio').textContent = '…'; $('changed').textContent = '…'; $('canvasStatus').textContent = '正在計算像素差異…';
     pending = setTimeout(() => {
       try {
-        const result = PixelCompare.compare({ a: dataA, b: dataB, width: state.width, height: state.height, threshold: state.threshold, region: state.region, ignores: state.ignores, aSize: {width:state.a.width,height:state.a.height}, bSize:{width:state.bWidth,height:state.bHeight} });
+        const result = PixelCompare.compare({ a: dataA, b: dataB, width: state.width, height: state.height, threshold: state.threshold, region: state.region, ignores: state.ignores, aSize: {x:state.ax,y:state.ay,width:state.a.width,height:state.a.height}, bSize:{x:state.bx,y:state.by,width:state.bWidth,height:state.bHeight} });
         state.result = result; ctx(diff).putImageData(new ImageData(result.data,state.width,state.height),0,0);
         $('ratio').innerHTML = result.ratio === null ? '—' : `${(result.ratio * 100).toFixed(2)}<small>%</small>`;
         $('changed').textContent = number(result.changed);
@@ -178,7 +181,7 @@
   function report() {
     const r=state.result;
     const source=s=>({name:s.name,width:s.width,height:s.height,bytes:s.fileBytes,demo:s.demo});
-    return {schemaVersion:1,tool:'Framecheck',createdAt:new Date().toISOString(),reference:source(state.a),web:source(state.b),canvas:{width:state.width,height:state.height},settings:{threshold:state.threshold,algorithm:'max RGB channel delta > threshold; alpha composited on white; missing source area is always changed',sizeMode:state.sizeMode,effectiveWebSize:{width:state.bWidth,height:state.bHeight},region:state.region,ignores:state.ignores},result:{changed:r.changed,compared:r.compared,ignored:r.ignored,ratio:r.ratio,bounds:r.bounds},review:{approved:$('approved').checked,note:$('reviewNote').value},notice:'像素差異比例不等於設計還原度分數。忽略區域與比較範圍以合成畫布像素為單位。'};
+    return {schemaVersion:2,alignment:workbench?.metadata(),tool:'Framecheck',createdAt:new Date().toISOString(),reference:source(state.a),web:source(state.b),canvas:{width:state.width,height:state.height},settings:{threshold:state.threshold,algorithm:'max RGB channel delta > threshold; alpha composited on white; missing source area is always changed',sizeMode:state.sizeMode,effectiveWebSize:{width:state.bWidth,height:state.bHeight},region:state.region,ignores:state.ignores},result:{changed:r.changed,compared:r.compared,ignored:r.ignored,ratio:r.ratio,bounds:r.bounds},review:{approved:$('approved').checked,note:$('reviewNote').value},notice:'像素差異比例不等於設計還原度分數。忽略區域與比較範圍以合成畫布像素為單位。'};
   }
   function drawDemo(variant) {
     const c=document.createElement('canvas');c.width=960;c.height=680;const x=ctx(c);
@@ -200,7 +203,7 @@
       const pair=await Promise.all([false,true].map(async variant=>{const canvas=drawDemo(variant);const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));return {image:canvas,width:canvas.width,height:canvas.height,name:variant?'demo-web.png':'demo-design.png',url:URL.createObjectURL(blob),fileBytes:blob.size,demo:true};}));
       if (sequence.a !== loadSequence.a || sequence.b !== loadSequence.b) { pair.forEach(source=>URL.revokeObjectURL(source.url)); return; }
       for(const key of ['a','b'])if(state[key]?.url)URL.revokeObjectURL(state[key].url);
-      state.a=pair[0];state.b=pair[1];state.sizeMode='original';$('sizeMode').value='original';resetRegions();updateSource('a');updateSource('b');switchTab('a');preparePair();toast('示範圖片已加入：試試疊圖，看看中間卡片的位置。');
+      state.a=pair[0];state.b=pair[1];workbench?.sourceChanged('a',pair[0]);workbench?.sourceChanged('b',pair[1]);state.sizeMode='original';$('sizeMode').value='original';resetRegions();updateSource('a');updateSource('b');switchTab('a');preparePair();toast('示範圖片已加入：試試疊圖，看看中間卡片的位置。');
     } catch(e){toast('示範載入失敗：'+e.message);}
   }
   function switchTab(tab) { const isA=tab==='a';$('panelA').hidden=!isA;$('panelB').hidden=isA;for(const [id,active] of [['tabA',isA],['tabB',!isA]]){$(id).setAttribute('aria-selected',String(active));$(id).tabIndex=active?0:-1;} if(isA)requestAnimationFrame(applyZoom); }
@@ -233,7 +236,7 @@
   $('exportDiff').onclick=()=>{if(state.result)canvasDownload(diff,'framecheck-diff.png');};
   $('exportReport').onclick=()=>{if(state.result)download(new Blob([JSON.stringify(report(),null,2)],{type:'application/json'}),'framecheck-report.json');};
   $('approved').onchange=()=>{$('saveBaseline').disabled=!$('approved').checked||!hasPair();};
-  $('saveBaseline').onclick=()=>{if(!$('approved').checked||!state.b)return;const c=document.createElement('canvas');c.width=state.b.width;c.height=state.b.height;ctx(c).drawImage(state.b.image,0,0);canvasDownload(c,'approved-web-baseline.png');toast('已保存原始網頁 PNG。請同時下載比對報告，留存核准紀錄。');};
+  $('saveBaseline').onclick=()=>{if(!$('approved').checked||!state.b)return;const original=workbench?.original('b')||state.b;const c=document.createElement('canvas');c.width=original.width;c.height=original.height;ctx(c).drawImage(original.image,0,0);canvasDownload(c,'approved-web-baseline.png');toast('已保存原始網頁 PNG。請同時下載比對報告，留存核准紀錄。');};
   $('demoButton').onclick=demo;$('emptyDemo').onclick=demo;$('emptyUpload').onclick=()=>$(state.a?'fileB':'fileA').click();
   $('tabA').onclick=()=>switchTab('a');$('tabB').onclick=()=>switchTab('b');
   for(const id of ['tabA','tabB'])$(id).addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight','Home','End'].includes(e.key)){e.preventDefault();const tab=e.key==='Home'?'a':e.key==='End'?'b':id==='tabA'?'b':'a';switchTab(tab);$(tab==='a'?'tabA':'tabB').focus();}});
@@ -241,5 +244,6 @@
   $('regressionForm').addEventListener('submit',e=>{e.preventDefault();const values=settings();try{const url=new URL(values.url);if(!['http:','https:'].includes(url.protocol))throw new Error();}catch{toast('請輸入 http 或 https 網址。');return;}if(!Number.isInteger(values.viewport.width)||!Number.isInteger(values.viewport.height)){toast('畫面尺寸請使用整數。');return;}const files={...REGRESSION_TEMPLATES,'regression.settings.json':JSON.stringify(values,null,2)+'\n'};download(zipFiles(files),'framecheck-playwright.zip');toast('範本已下載。解壓縮後請先閱讀 README.md。');});
   $('helpButton').onclick=()=>{if(!$('helpDialog').open)$('helpDialog').showModal();};$('closeHelp').onclick=()=>$('helpDialog').close();$('helpDone').onclick=()=>$('helpDialog').close();
   document.addEventListener('keydown',e=>{if(e.key==='Escape')setTool(null);});
+  /* WORKBENCH */
   previewSettings();
 })();
