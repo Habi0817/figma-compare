@@ -48,24 +48,58 @@
     $('resetAlignment').onclick=()=>attempt(()=>{const previous={...crops};crops.a=crops.b=null;const v={designRatio:1,webRatio:1,webRatioKnown:false,offsetX:0,offsetY:0};try{apply(v);}catch(e){Object.assign(crops,previous);throw e;}$('designRatio').value=1;$('webRatio').value=1;$('webRatioKnown').checked=false;$('offsetX').value=0;$('offsetY').value=0;});
     function cropFields(){for(const [id,key] of [['cropX','x'],['cropY','y'],['cropW','width'],['cropH','height']])$(id).value=cropDraft[key];}
     function paintCrop(){
-      const o=originals[cropKey],c=$('cropCanvas'),x=ctx(c),scale=c.width/o.width;
+      const o=originals[cropKey],c=$('cropCanvas'),x=ctx(c),scale=c.width/o.width,scaleY=c.height/o.height;
       x.clearRect(0,0,c.width,c.height);x.drawImage(o.image,0,0,c.width,c.height);
-      if(cropDraft){const r=cropDraft;x.fillStyle='#18382e66';x.beginPath();x.rect(0,0,c.width,c.height);x.rect(r.x*scale,r.y*scale,r.width*scale,r.height*scale);x.fill('evenodd');x.strokeStyle='#3b8b63';x.lineWidth=2;x.strokeRect(r.x*scale,r.y*scale,r.width*scale,r.height*scale);}
+      if(cropDraft){const r=cropDraft;x.fillStyle='#18382e66';x.beginPath();x.rect(0,0,c.width,c.height);x.rect(r.x*scale,r.y*scaleY,r.width*scale,r.height*scaleY);x.fill('evenodd');x.strokeStyle='#3b8b63';x.lineWidth=2;x.strokeRect(r.x*scale,r.y*scaleY,r.width*scale,r.height*scaleY);}
     }
     function openCrop(key){
       if(!originals[key])return;cropKey=key;cropVersion=originals[key];cropDraft={...(crops[key]||full(originals[key]))};cropStart=null;
       $('cropTitle').textContent=key==='a'?'選取設計稿中的元件':'選取網頁中的同一元件';
       const o=originals[key],scale=Math.min(1,1400/o.width,2400/o.height);$('cropCanvas').width=Math.max(1,Math.round(o.width*scale));$('cropCanvas').height=Math.max(1,Math.round(o.height*scale));
-      cropFields();paintCrop();$('cropDialog').showModal();
+      $('cropLock').checked=key==='b';$('cropCanvas').style.cursor=key==='b'?'grab':'crosshair';cropError();cropFields();paintCrop();$('cropDialog').showModal();
     }
     $('cropA').onclick=()=>openCrop('a');$('cropB').onclick=()=>openCrop('b');$('closeCrop').onclick=()=>$('cropDialog').close();
     const cropPoint=e=>{const box=$('cropCanvas').getBoundingClientRect(),o=originals[cropKey];return{x:Math.max(0,Math.min(o.width,(e.clientX-box.left)*o.width/box.width)),y:Math.max(0,Math.min(o.height,(e.clientY-box.top)*o.height/box.height))};};
-    $('cropCanvas').onpointerdown=e=>{if(e.button!==0)return;e.preventDefault();cropStart=cropPoint(e);$('cropCanvas').setPointerCapture(e.pointerId);};
-    $('cropCanvas').onpointermove=e=>{if(!cropStart)return;const p=cropPoint(e),o=originals[cropKey],r=PixelCompare.normalizeRect({x:cropStart.x,y:cropStart.y,width:p.x-cropStart.x,height:p.y-cropStart.y},o.width,o.height);if(r){cropDraft=r;cropFields();paintCrop();}};
-    $('cropCanvas').onpointerup=e=>{cropStart=null;if($('cropCanvas').hasPointerCapture(e.pointerId))$('cropCanvas').releasePointerCapture(e.pointerId);};
-    $('cropCanvas').onpointercancel=()=>{cropStart=null;};
+    function cropError(message=''){$('cropError').textContent=message;$('applyCrop').disabled=!!message;}
+    function updateCropFields(sizeChanged=false){
+      try{
+        const o=originals[cropKey],w=Number($('cropW').value),h=Number($('cropH').value);
+        if(!Number.isSafeInteger(w)||!Number.isSafeInteger(h)||w<1||h<1||w>o.width||h>o.height)throw Error('寬高必須是正整數，且不能超過原圖 '+o.width+' × '+o.height+' px。');
+        if(sizeChanged){$('cropLock').checked=true;for(const [id,max]of [['cropX',o.width-w],['cropY',o.height-h]]){const v=Number($(id).value);if(Number.isSafeInteger(v))$(id).value=Math.max(0,Math.min(max,v));}}
+        cropDraft=readCrop();cropError();paintCrop();
+      }catch(e){cropError(e.message);}
+    }
+    function moveCrop(e){
+      if(!cropStart||cropStart.pointer!==e.pointerId)return;
+      const p=cropPoint(e),o=originals[cropKey];
+      if(cropStart.mode==='move'){
+        const r=cropStart.rect;
+        cropDraft={x:Math.max(0,Math.min(o.width-r.width,Math.round(r.x+p.x-cropStart.x))),y:Math.max(0,Math.min(o.height-r.height,Math.round(r.y+p.y-cropStart.y))),width:r.width,height:r.height};
+      }else{
+        const r=PixelCompare.normalizeRect({x:cropStart.x,y:cropStart.y,width:p.x-cropStart.x,height:p.y-cropStart.y},o.width,o.height);if(!r)return;cropDraft=r;
+      }
+      cropFields();cropError();paintCrop();
+    }
+    $('cropCanvas').onpointerdown=e=>{
+      if(e.button!==0||cropStart)return;
+      try{cropDraft=readCrop();cropError();}catch(error){cropError(error.message);return;}
+      e.preventDefault();const p=cropPoint(e),r={...cropDraft},o=originals[cropKey];
+      const inside=p.x>=r.x&&p.x<=r.x+r.width&&p.y>=r.y&&p.y<=r.y+r.height;
+      const whole=r.x===0&&r.y===0&&r.width===o.width&&r.height===o.height;
+      const moving=$('cropLock').checked||(inside&&!whole);
+      if(moving&&!inside){r.x=Math.max(0,Math.min(o.width-r.width,Math.round(p.x-r.width/2)));r.y=Math.max(0,Math.min(o.height-r.height,Math.round(p.y-r.height/2)));cropDraft={...r};cropFields();paintCrop();}
+      cropStart={x:p.x,y:p.y,rect:r,mode:moving?'move':'draw',pointer:e.pointerId};
+      $('cropCanvas').setPointerCapture(e.pointerId);$('cropCanvas').style.cursor=moving?'grabbing':'crosshair';
+    };
+    $('cropCanvas').onpointermove=e=>moveCrop(e);
+    function endCropDrag(e){if(cropStart?.pointer!==e.pointerId)return;cropStart=null;if($('cropCanvas').hasPointerCapture(e.pointerId))$('cropCanvas').releasePointerCapture(e.pointerId);$('cropCanvas').style.cursor=$('cropLock').checked?'grab':'crosshair';}
+    $('cropCanvas').onpointerup=e=>{moveCrop(e);endCropDrag(e);};
+    $('cropCanvas').onpointercancel=endCropDrag;
+    $('cropCanvas').onlostpointercapture=e=>{if(cropStart?.pointer===e.pointerId)cropStart=null;};
+    $('cropLock').onchange=()=>{$('cropCanvas').style.cursor=$('cropLock').checked?'grab':'crosshair';};
+    $('cropDialog').addEventListener('close',()=>{cropStart=null;});
     function readCrop(){const r={x:Number($('cropX').value),y:Number($('cropY').value),width:Number($('cropW').value),height:Number($('cropH').value)},o=originals[cropKey];if(!Object.values(r).every(Number.isSafeInteger)||r.x<0||r.y<0||r.width<1||r.height<1||r.x+r.width>o.width||r.y+r.height>o.height)throw Error('請輸入落在原圖內的整數座標及正數寬高。');return r;}
-    for(const id of ['cropX','cropY','cropW','cropH'])$(id).oninput=()=>{try{cropDraft=readCrop();paintCrop();}catch{}};
+    for(const id of ['cropX','cropY','cropW','cropH'])$(id).oninput=()=>updateCropFields(id==='cropW'||id==='cropH');
     function commitCrop(r){if(cropVersion!==originals[cropKey])throw Error('來源已更新，請重新選取。');const previous=crops[cropKey];crops[cropKey]=r;try{apply({...applied,offsetX:0,offsetY:0});}catch(e){crops[cropKey]=previous;throw e;}$('offsetX').value=0;$('offsetY').value=0;$('cropDialog').close();toast('已選取元件；元件尺寸差異會保留。');}
     $('applyCrop').onclick=()=>attempt(()=>commitCrop(readCrop()));$('fullCrop').onclick=()=>attempt(()=>commitCrop(null));
     let pasteDestination='b';
@@ -123,3 +157,5 @@
     refresh();
     return {sourceChanged,original:key=>originals[key],notice:()=>`${applied.webRatioKnown?'使用手動確認倍率；框選尺寸屬估測。':'網頁倍率未確認：僅供視覺檢查，不宣稱精確 CSS 尺寸。'} 網頁位移 X ${applied.offsetX} / Y ${applied.offsetY}。`,metadata:()=>({originals:Object.fromEntries(['a','b'].map(k=>[k,originals[k]?{name:originals[k].name,width:originals[k].width,height:originals[k].height}:null])),crops:{...crops},...applied,coordinateSystem:'Aligned comparison canvas; crop rectangles use original source pixels',manualCropMeasurements:true})};
   })();
+
+

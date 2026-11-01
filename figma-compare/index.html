@@ -10,6 +10,9 @@
 .capture-entry{display:flex;align-items:center;gap:20px;background:#eaf1e9;border:1px solid #d6e2d4;border-radius:12px;padding:18px 20px;margin-bottom:8px}.capture-entry strong{font-size:14px}.capture-entry p{font-size:11px;color:#6b7f68;margin-top:5px}.capture-entry>.button{margin-left:auto}.paste-target{font-size:10px;display:flex;flex-direction:column;gap:4px}.paste-target select{padding:5px;font-size:11px}.paste-target small{font-size:9px;color:var(--muted)}.capture-status{font-size:11px;color:#6b7f68;margin:0 0 19px;line-height:1.8}.component-tools{display:flex;gap:7px;margin:10px 0}.component-tools button{flex:1;min-width:0;padding:8px 5px;font-size:10px}.calibration{font-size:11px}.calibration summary{cursor:pointer;font-weight:600}.calibration>p{margin:10px 0}.calibration input[type=number]{width:100%;font-size:11px}.calibration .check-label{font-size:10px;margin:10px 0}.calibration .two-fields{gap:8px;margin:12px 0}.calibration .wide{width:100%;margin-top:4px}.inline-fields{display:flex;gap:5px}.inline-fields input{width:0;flex:1}.inline-fields button{padding:7px;font-size:9px}#captureDialog,#cropDialog{max-width:900px;max-height:92vh;overflow:auto}#captureDialog>p,#cropDialog>p{font-size:12px;color:var(--muted);margin:12px 0;line-height:1.8}#captureVideo{display:block;width:100%;max-height:55vh;background:#23342d;border-radius:8px}#cropViewport{max-height:53vh;overflow:auto;background:#edf1e9;padding:8px}#cropCanvas{max-width:100%;height:auto;display:block;touch-action:none;cursor:crosshair}#cropDialog .coordinate-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.dialog-actions{display:flex;gap:10px;margin-top:15px;flex-wrap:wrap}@media(max-width:760px){.capture-entry{flex-wrap:wrap;padding:15px;gap:12px}.capture-entry>div{width:100%}.capture-entry>.button{margin-left:0}.sidebar>.component-tools,.sidebar>.calibration,.sidebar>#cropSummary,.sidebar>#resetAlignment{grid-column:1/-1}.calibration .two-fields label{font-size:10px}.paste-target{flex:1}.dialog-actions .button{white-space:normal}#cropDialog .coordinate-grid{grid-template-columns:1fr 1fr}}
 
 .paste-target-buttons{display:flex;gap:4px}.paste-target-buttons button{border:1px solid #cbd8c8;background:white;color:#5b7056;border-radius:5px;padding:6px 8px;font-size:11px}.paste-target-buttons button[aria-pressed=true]{background:#326653;color:white;border-color:#326653}
+
+
+.crop-lock{margin:12px 0}.crop-error{color:#a53a37!important;min-height:18px;font-size:11px!important}#cropCanvas{user-select:none}
 </style>
 </head>
 <body>
@@ -74,7 +77,7 @@
   <footer class="page-footer"><span>framecheck. <span>把差異看清楚，把設計做好。</span></span><span>無 CDN · 無 MCP · 可離線使用</span></footer>
 </main>
 <dialog id="captureDialog"><div class="dialog-heading"><h2>確認要驗收的畫面</h2><button id="cancelCapture" class="icon-button" aria-label="停止分享並關閉">×</button></div><p>請先在受測分頁捲動到元件完整可見的位置，再回到這裡擷取。只取得這一刻的畫面，不錄音、不上傳。</p><video id="captureVideo" autoplay muted playsinline></video><p id="captureDimensions" class="field-help"></p><div class="dialog-actions"><button id="freezeCapture" class="button primary" disabled>擷取這一刻並停止分享</button><button id="stopCapture" class="button secondary">停止分享</button></div></dialog>
-<dialog id="cropDialog"><div class="dialog-heading"><h2 id="cropTitle">選取元件</h2><button id="closeCrop" class="icon-button" aria-label="取消元件選取">×</button></div><p>拖曳圈選完整元件，保留所需內距。兩張圖可選不同座標與尺寸。</p><div id="cropViewport"><canvas id="cropCanvas" aria-label="拖曳框選元件，或使用下方座標欄位"></canvas></div><div class="coordinate-grid"><label>X<input id="cropX" type="number" min="0"></label><label>Y<input id="cropY" type="number" min="0"></label><label>寬<input id="cropW" type="number" min="1"></label><label>高<input id="cropH" type="number" min="1"></label></div><div class="dialog-actions"><button id="applyCrop" class="button primary">使用所選元件</button><button id="fullCrop" class="button secondary">使用整張圖片</button></div></dialog>
+<dialog id="cropDialog"><div class="dialog-heading"><h2 id="cropTitle">選取元件</h2><button id="closeCrop" class="icon-button" aria-label="取消元件選取">×</button></div><p>輸入寬高即顯示選取框；拖曳框內移動位置。鎖定時不會改變寬高，取消鎖定後可從框外重新畫框。</p><label class="check-label crop-lock"><input id="cropLock" type="checkbox">鎖定寬高，只移動選取框</label><p class="field-help">寬高為原圖像素。若要和 Figma 元件一致，請先確認兩張圖片的匯出／擷取倍率。</p><p id="cropError" class="crop-error" role="status" aria-live="polite"></p><div id="cropViewport"><canvas id="cropCanvas" aria-label="拖曳框選元件，或使用下方座標欄位"></canvas></div><div class="coordinate-grid"><label>X<input id="cropX" type="number" min="0"></label><label>Y<input id="cropY" type="number" min="0"></label><label>寬<input id="cropW" type="number" min="1"></label><label>高<input id="cropH" type="number" min="1"></label></div><div class="dialog-actions"><button id="applyCrop" class="button primary">使用所選元件</button><button id="fullCrop" class="button secondary">使用整張圖片</button></div></dialog>
 <dialog id="helpDialog"><div class="dialog-heading"><h2>開始一次可靠的比對</h2><button class="icon-button" id="closeHelp" aria-label="關閉指南">×</button></div><ol><li><strong>準備同尺寸圖片</strong><p>有匯出權限的 Figma Frame 匯出為 1× PNG；以相同視窗尺寸取得網頁截圖。長頁面請使用一致的完整頁面高度。</p></li><li><strong>先看結構，再看細節</strong><p>並排確認整體；疊圖找位移；滑桿看同一區域；差異圖顯示像素色差。</p></li><li><strong>只比較真正重要的區域</strong><p>用「選設計稿元件」與「選網頁元件」各自圈選對應內容，再校正倍率與位置。比較範圍和忽略區域則作用於對齊後的畫布。</p></li><li><strong>人工核准後才建立基準</strong><p>像素比例不是設計還原度。確認視覺結果後保存網頁圖；到 B 下載自動回歸範本。</p></li></ol><div class="help-note">圖片只在這個分頁的記憶體中處理，不上傳、不寫入瀏覽器儲存空間。重新整理會清除圖片與設定。每張圖片最多 12 MB、12 百萬像素；合成畫布也受相同像素上限限制。建議使用 PNG 以避免壓縮雜訊。</div><button class="button primary" id="helpDone">開始比對</button></dialog>
 <div id="toast" role="status" aria-live="polite" hidden></div>
 <script>(function (root, factory) {
@@ -505,24 +508,58 @@
     $('resetAlignment').onclick=()=>attempt(()=>{const previous={...crops};crops.a=crops.b=null;const v={designRatio:1,webRatio:1,webRatioKnown:false,offsetX:0,offsetY:0};try{apply(v);}catch(e){Object.assign(crops,previous);throw e;}$('designRatio').value=1;$('webRatio').value=1;$('webRatioKnown').checked=false;$('offsetX').value=0;$('offsetY').value=0;});
     function cropFields(){for(const [id,key] of [['cropX','x'],['cropY','y'],['cropW','width'],['cropH','height']])$(id).value=cropDraft[key];}
     function paintCrop(){
-      const o=originals[cropKey],c=$('cropCanvas'),x=ctx(c),scale=c.width/o.width;
+      const o=originals[cropKey],c=$('cropCanvas'),x=ctx(c),scale=c.width/o.width,scaleY=c.height/o.height;
       x.clearRect(0,0,c.width,c.height);x.drawImage(o.image,0,0,c.width,c.height);
-      if(cropDraft){const r=cropDraft;x.fillStyle='#18382e66';x.beginPath();x.rect(0,0,c.width,c.height);x.rect(r.x*scale,r.y*scale,r.width*scale,r.height*scale);x.fill('evenodd');x.strokeStyle='#3b8b63';x.lineWidth=2;x.strokeRect(r.x*scale,r.y*scale,r.width*scale,r.height*scale);}
+      if(cropDraft){const r=cropDraft;x.fillStyle='#18382e66';x.beginPath();x.rect(0,0,c.width,c.height);x.rect(r.x*scale,r.y*scaleY,r.width*scale,r.height*scaleY);x.fill('evenodd');x.strokeStyle='#3b8b63';x.lineWidth=2;x.strokeRect(r.x*scale,r.y*scaleY,r.width*scale,r.height*scaleY);}
     }
     function openCrop(key){
       if(!originals[key])return;cropKey=key;cropVersion=originals[key];cropDraft={...(crops[key]||full(originals[key]))};cropStart=null;
       $('cropTitle').textContent=key==='a'?'選取設計稿中的元件':'選取網頁中的同一元件';
       const o=originals[key],scale=Math.min(1,1400/o.width,2400/o.height);$('cropCanvas').width=Math.max(1,Math.round(o.width*scale));$('cropCanvas').height=Math.max(1,Math.round(o.height*scale));
-      cropFields();paintCrop();$('cropDialog').showModal();
+      $('cropLock').checked=key==='b';$('cropCanvas').style.cursor=key==='b'?'grab':'crosshair';cropError();cropFields();paintCrop();$('cropDialog').showModal();
     }
     $('cropA').onclick=()=>openCrop('a');$('cropB').onclick=()=>openCrop('b');$('closeCrop').onclick=()=>$('cropDialog').close();
     const cropPoint=e=>{const box=$('cropCanvas').getBoundingClientRect(),o=originals[cropKey];return{x:Math.max(0,Math.min(o.width,(e.clientX-box.left)*o.width/box.width)),y:Math.max(0,Math.min(o.height,(e.clientY-box.top)*o.height/box.height))};};
-    $('cropCanvas').onpointerdown=e=>{if(e.button!==0)return;e.preventDefault();cropStart=cropPoint(e);$('cropCanvas').setPointerCapture(e.pointerId);};
-    $('cropCanvas').onpointermove=e=>{if(!cropStart)return;const p=cropPoint(e),o=originals[cropKey],r=PixelCompare.normalizeRect({x:cropStart.x,y:cropStart.y,width:p.x-cropStart.x,height:p.y-cropStart.y},o.width,o.height);if(r){cropDraft=r;cropFields();paintCrop();}};
-    $('cropCanvas').onpointerup=e=>{cropStart=null;if($('cropCanvas').hasPointerCapture(e.pointerId))$('cropCanvas').releasePointerCapture(e.pointerId);};
-    $('cropCanvas').onpointercancel=()=>{cropStart=null;};
+    function cropError(message=''){$('cropError').textContent=message;$('applyCrop').disabled=!!message;}
+    function updateCropFields(sizeChanged=false){
+      try{
+        const o=originals[cropKey],w=Number($('cropW').value),h=Number($('cropH').value);
+        if(!Number.isSafeInteger(w)||!Number.isSafeInteger(h)||w<1||h<1||w>o.width||h>o.height)throw Error('寬高必須是正整數，且不能超過原圖 '+o.width+' × '+o.height+' px。');
+        if(sizeChanged){$('cropLock').checked=true;for(const [id,max]of [['cropX',o.width-w],['cropY',o.height-h]]){const v=Number($(id).value);if(Number.isSafeInteger(v))$(id).value=Math.max(0,Math.min(max,v));}}
+        cropDraft=readCrop();cropError();paintCrop();
+      }catch(e){cropError(e.message);}
+    }
+    function moveCrop(e){
+      if(!cropStart||cropStart.pointer!==e.pointerId)return;
+      const p=cropPoint(e),o=originals[cropKey];
+      if(cropStart.mode==='move'){
+        const r=cropStart.rect;
+        cropDraft={x:Math.max(0,Math.min(o.width-r.width,Math.round(r.x+p.x-cropStart.x))),y:Math.max(0,Math.min(o.height-r.height,Math.round(r.y+p.y-cropStart.y))),width:r.width,height:r.height};
+      }else{
+        const r=PixelCompare.normalizeRect({x:cropStart.x,y:cropStart.y,width:p.x-cropStart.x,height:p.y-cropStart.y},o.width,o.height);if(!r)return;cropDraft=r;
+      }
+      cropFields();cropError();paintCrop();
+    }
+    $('cropCanvas').onpointerdown=e=>{
+      if(e.button!==0||cropStart)return;
+      try{cropDraft=readCrop();cropError();}catch(error){cropError(error.message);return;}
+      e.preventDefault();const p=cropPoint(e),r={...cropDraft},o=originals[cropKey];
+      const inside=p.x>=r.x&&p.x<=r.x+r.width&&p.y>=r.y&&p.y<=r.y+r.height;
+      const whole=r.x===0&&r.y===0&&r.width===o.width&&r.height===o.height;
+      const moving=$('cropLock').checked||(inside&&!whole);
+      if(moving&&!inside){r.x=Math.max(0,Math.min(o.width-r.width,Math.round(p.x-r.width/2)));r.y=Math.max(0,Math.min(o.height-r.height,Math.round(p.y-r.height/2)));cropDraft={...r};cropFields();paintCrop();}
+      cropStart={x:p.x,y:p.y,rect:r,mode:moving?'move':'draw',pointer:e.pointerId};
+      $('cropCanvas').setPointerCapture(e.pointerId);$('cropCanvas').style.cursor=moving?'grabbing':'crosshair';
+    };
+    $('cropCanvas').onpointermove=e=>moveCrop(e);
+    function endCropDrag(e){if(cropStart?.pointer!==e.pointerId)return;cropStart=null;if($('cropCanvas').hasPointerCapture(e.pointerId))$('cropCanvas').releasePointerCapture(e.pointerId);$('cropCanvas').style.cursor=$('cropLock').checked?'grab':'crosshair';}
+    $('cropCanvas').onpointerup=e=>{moveCrop(e);endCropDrag(e);};
+    $('cropCanvas').onpointercancel=endCropDrag;
+    $('cropCanvas').onlostpointercapture=e=>{if(cropStart?.pointer===e.pointerId)cropStart=null;};
+    $('cropLock').onchange=()=>{$('cropCanvas').style.cursor=$('cropLock').checked?'grab':'crosshair';};
+    $('cropDialog').addEventListener('close',()=>{cropStart=null;});
     function readCrop(){const r={x:Number($('cropX').value),y:Number($('cropY').value),width:Number($('cropW').value),height:Number($('cropH').value)},o=originals[cropKey];if(!Object.values(r).every(Number.isSafeInteger)||r.x<0||r.y<0||r.width<1||r.height<1||r.x+r.width>o.width||r.y+r.height>o.height)throw Error('請輸入落在原圖內的整數座標及正數寬高。');return r;}
-    for(const id of ['cropX','cropY','cropW','cropH'])$(id).oninput=()=>{try{cropDraft=readCrop();paintCrop();}catch{}};
+    for(const id of ['cropX','cropY','cropW','cropH'])$(id).oninput=()=>updateCropFields(id==='cropW'||id==='cropH');
     function commitCrop(r){if(cropVersion!==originals[cropKey])throw Error('來源已更新，請重新選取。');const previous=crops[cropKey];crops[cropKey]=r;try{apply({...applied,offsetX:0,offsetY:0});}catch(e){crops[cropKey]=previous;throw e;}$('offsetX').value=0;$('offsetY').value=0;$('cropDialog').close();toast('已選取元件；元件尺寸差異會保留。');}
     $('applyCrop').onclick=()=>attempt(()=>commitCrop(readCrop()));$('fullCrop').onclick=()=>attempt(()=>commitCrop(null));
     let pasteDestination='b';
@@ -586,4 +623,6 @@
 </script>
 </body>
 </html>
+
+
 

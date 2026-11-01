@@ -70,7 +70,7 @@
   <footer class="page-footer"><span>framecheck. <span>把差異看清楚，把設計做好。</span></span><span>無 CDN · 無 MCP · 可離線使用</span></footer>
 </main>
 <dialog id="captureDialog"><div class="dialog-heading"><h2>確認要驗收的畫面</h2><button id="cancelCapture" class="icon-button" aria-label="停止分享並關閉">×</button></div><p>請先在受測分頁捲動到元件完整可見的位置，再回到這裡擷取。只取得這一刻的畫面，不錄音、不上傳。</p><video id="captureVideo" autoplay muted playsinline></video><p id="captureDimensions" class="field-help"></p><div class="dialog-actions"><button id="freezeCapture" class="button primary" disabled>擷取這一刻並停止分享</button><button id="stopCapture" class="button secondary">停止分享</button></div></dialog>
-<dialog id="cropDialog"><div class="dialog-heading"><h2 id="cropTitle">選取元件</h2><button id="closeCrop" class="icon-button" aria-label="取消元件選取">×</button></div><p>拖曳圈選完整元件，保留所需內距。兩張圖可選不同座標與尺寸。</p><div id="cropViewport"><canvas id="cropCanvas" aria-label="拖曳框選元件，或使用下方座標欄位"></canvas></div><div class="coordinate-grid"><label>X<input id="cropX" type="number" min="0"></label><label>Y<input id="cropY" type="number" min="0"></label><label>寬<input id="cropW" type="number" min="1"></label><label>高<input id="cropH" type="number" min="1"></label></div><div class="dialog-actions"><button id="applyCrop" class="button primary">使用所選元件</button><button id="fullCrop" class="button secondary">使用整張圖片</button></div></dialog>
+<dialog id="cropDialog"><div class="dialog-heading"><h2 id="cropTitle">選取元件</h2><button id="closeCrop" class="icon-button" aria-label="取消元件選取">×</button></div><p>輸入寬高即顯示選取框；拖曳框內移動位置。鎖定時不會改變寬高，取消鎖定後可從框外重新畫框。</p><label class="check-label crop-lock"><input id="cropLock" type="checkbox">鎖定寬高，只移動選取框</label><p class="field-help">寬高為原圖像素。若要和 Figma 元件一致，請先確認兩張圖片的匯出／擷取倍率。</p><p id="cropError" class="crop-error" role="status" aria-live="polite"></p><div id="cropViewport"><canvas id="cropCanvas" aria-label="拖曳框選元件，或使用下方座標欄位"></canvas></div><div class="coordinate-grid"><label>X<input id="cropX" type="number" min="0"></label><label>Y<input id="cropY" type="number" min="0"></label><label>寬<input id="cropW" type="number" min="1"></label><label>高<input id="cropH" type="number" min="1"></label></div><div class="dialog-actions"><button id="applyCrop" class="button primary">使用所選元件</button><button id="fullCrop" class="button secondary">使用整張圖片</button></div></dialog>
 <dialog id="helpDialog"><div class="dialog-heading"><h2>開始一次可靠的比對</h2><button class="icon-button" id="closeHelp" aria-label="關閉指南">×</button></div><ol><li><strong>準備同尺寸圖片</strong><p>有匯出權限的 Figma Frame 匯出為 1× PNG；以相同視窗尺寸取得網頁截圖。長頁面請使用一致的完整頁面高度。</p></li><li><strong>先看結構，再看細節</strong><p>並排確認整體；疊圖找位移；滑桿看同一區域；差異圖顯示像素色差。</p></li><li><strong>只比較真正重要的區域</strong><p>用「選設計稿元件」與「選網頁元件」各自圈選對應內容，再校正倍率與位置。比較範圍和忽略區域則作用於對齊後的畫布。</p></li><li><strong>人工核准後才建立基準</strong><p>像素比例不是設計還原度。確認視覺結果後保存網頁圖；到 B 下載自動回歸範本。</p></li></ol><div class="help-note">圖片只在這個分頁的記憶體中處理，不上傳、不寫入瀏覽器儲存空間。重新整理會清除圖片與設定。每張圖片最多 12 MB、12 百萬像素；合成畫布也受相同像素上限限制。建議使用 PNG 以避免壓縮雜訊。</div><button class="button primary" id="helpDone">開始比對</button></dialog>
 <div id="toast" role="status" aria-live="polite" hidden></div>
 <script>/* CORE */</script>
@@ -78,4 +78,6 @@
 <script>/* APP */</script>
 </body>
 </html>
+
+
 
