@@ -1,11 +1,12 @@
 {
   "name": "framecheck",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "private": true,
   "description": "Offline Figma and webpage image comparison tool",
   "scripts": {
     "build": "node build.cjs",
-    "test": "node --test tests/diff-core.test.cjs"
+    "test": "node --test tests/diff-core.test.cjs",
+    "test:browser": "node tests/auto-align.browser.cjs && node tests/crop-drag.browser.cjs && node tests/paste-target.browser.cjs"
   },
   "engines": {
     "node": ">=20"

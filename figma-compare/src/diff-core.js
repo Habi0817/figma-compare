@@ -76,7 +76,9 @@
       }
     });
     var data = new Uint8ClampedArray(count * 4);
-    var changed = 0, compared = 0, ignored = 0;
+    var changed = 0, compared = 0, ignored = 0, missing = 0, missingReference = 0, missingWeb = 0;
+    var bValid = options.bValid;
+    if(bValid && (![bValid.x,bValid.y,bValid.width,bValid.height].every(Number.isSafeInteger)||bValid.x<0||bValid.y<0||bValid.width<0||bValid.height<0||bValid.x+bValid.width>width||bValid.y+bValid.height>height))throw new RangeError("Invalid coverage rectangle");
     var minX = width, minY = height, maxX = -1, maxY = -1;
 
     for (var y = 0; y < height; y++) {
@@ -84,6 +86,7 @@
         var pixel = y * width + x, i = pixel * 4;
         var hasA = x >= aSize.x && y >= aSize.y && x < aSize.x + aSize.width && y < aSize.y + aSize.height;
         var hasB = x >= bSize.x && y >= bSize.y && x < bSize.x + bSize.width && y < bSize.y + bSize.height;
+        if(bValid)hasB=hasB && x>=bValid.x && y>=bValid.y && x<bValid.x+bValid.width && y<bValid.y+bValid.height;
         var alphaA = a[i + 3] / 255, alphaB = b[i + 3] / 255;
         var ar = a[i] * alphaA + 255 * (1 - alphaA);
         var ag = a[i + 1] * alphaA + 255 * (1 - alphaA);
@@ -106,6 +109,8 @@
           data[i] = 226; data[i + 1] = 230; data[i + 2] = 237;
           continue;
         }
+        if(hasA!==hasB){missing++;if(hasA)missingWeb++;else missingReference++;
+          if(options.separateMissing){const stripe=(x+y)%12<4;data[i]=stripe?192:255;data[i+1]=stripe?139:244;data[i+2]=stripe?59:222;continue;}}
         compared++;
         var differs = hasA !== hasB || Math.max(Math.abs(ar - br), Math.abs(ag - bg), Math.abs(ab - bb)) > threshold;
         if (differs) {
@@ -118,6 +123,7 @@
     }
     return {
       data: data,
+      missing:missing, missingReference:missingReference, missingWeb:missingWeb,
       changed: changed,
       compared: compared,
       ignored: ignored,

@@ -2,6 +2,14 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { compare, normalizeRect } = require('../src/diff-core.js');
 
+test('separate missing coverage excludes missing pixels from ratio even when threshold is maximal',()=>{
+  const a=rgba(4,2),b=a.slice();set(b,4,0,0,[0,0,0,255]);
+  const r=compare({a,b,width:4,height:2,separateMissing:true,bValid:{x:0,y:0,width:2,height:2}});
+  assert.equal(r.missingWeb,4);assert.equal(r.missingReference,0);assert.equal(r.compared,4);assert.equal(r.changed,1);assert.equal(r.ratio,.25);
+  assert.equal(compare({a,b,width:4,height:2,separateMissing:true,bValid:{x:0,y:0,width:0,height:0}}).ratio,null);
+  assert.throws(()=>compare({a,b,width:4,height:2,bValid:{x:-1,y:0,width:2,height:2}}),RangeError);
+});
+
 function rgba(width, height, pixel = [255, 255, 255, 255]) {
   return new Uint8ClampedArray(Array.from({ length: width * height }, () => pixel).flat());
 }

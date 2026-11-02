@@ -5,6 +5,8 @@
     let cropKey=null,cropDraft=null,cropStart=null,cropVersion=null,stream=null,captureGeneration=0,capturePending=false;
     const full=s=>({x:0,y:0,width:s.width,height:s.height});
     function sourceChanged(key,source){
+      if(autoReview){const other=key==='a'?'b':'a';state[other]=originals[other];crops[other]=null;}
+      invalidateAuto(true);
       originals[key]=source;crops[key]=null;
       if(cropKey===key && $('cropDialog').open)$('cropDialog').close();
       if(key==='a'){$('designRatio').value=1;applied.designRatio=1;$('frameWidth').value='';}
@@ -14,6 +16,7 @@
       refresh();
     }
     function refresh(){
+      $('autoSearch').disabled=!!autoWorker||loadPending.a||loadPending.b||!originals.a||!originals.b;
       $('cropA').disabled=!originals.a;$('cropB').disabled=!originals.b;
       $('resetAlignment').disabled=!originals.a&&!originals.b;
       $('applyAlignment').disabled=!hasPair();$('alignTopLeft').disabled=!hasPair();$('alignCenter').disabled=!hasPair();
@@ -35,6 +38,7 @@
       return {...o,...d,image:c};
     }
     function apply(v=values()){
+      invalidateAuto();
       const a=dimensionsFor('a',v),b=dimensionsFor('b',v);safeDimensions(a,b,'original');
       const nextA=transformed('a',v,a),nextB=transformed('b',v,b);
       state.a=nextA;state.b=nextB;state.sizeMode='original';$('sizeMode').value='original';applied={...v};
@@ -154,8 +158,9 @@
       try{ctx(c).drawImage(video,0,0);const sequence=++loadSequence.b;stopShare('已擷取，分享已停止。正在加入網頁圖片…');const blob=await new Promise(resolve=>c.toBlob(resolve,'image/png'));if(sequence!==loadSequence.b)return;if(!blob)throw Error('擷取圖片失敗');if(blob.size>MAX_FILE)throw Error('擷取圖片超過 12 MB，請縮小視窗後重試。');const loaded=await importFile(new File([blob],`web-capture-${Date.now()}.png`,{type:'image/png'}),'b');if(!loaded){$('captureStatus').textContent='分享已停止；圖片未加入，請依提示調整圖片尺寸後重試。';return;}$('captureStatus').textContent='畫面已加入，分享已停止。接著分別選取設計稿與網頁元件。';}catch(e){stopShare('畫面擷取失敗，可重新嘗試或改用貼上圖片。');toast(e.message);}
     };
     window.addEventListener('pagehide',()=>stopShare());
+    /* AUTO_UI */
     refresh();
-    return {sourceChanged,original:key=>originals[key],notice:()=>`${applied.webRatioKnown?'使用手動確認倍率；框選尺寸屬估測。':'網頁倍率未確認：僅供視覺檢查，不宣稱精確 CSS 尺寸。'} 網頁位移 X ${applied.offsetX} / Y ${applied.offsetY}。`,metadata:()=>({originals:Object.fromEntries(['a','b'].map(k=>[k,originals[k]?{name:originals[k].name,width:originals[k].width,height:originals[k].height}:null])),crops:{...crops},...applied,coordinateSystem:'Aligned comparison canvas; crop rectangles use original source pixels',manualCropMeasurements:true})};
+    return {sourceChanged,loadingStarted:()=>cancelAuto('正在載入圖片…'),loadingFinished:refresh,original:key=>originals[key],notice:()=>autoReview ? `自動對齊已確認；${autoReview.scaleSource==='image-estimated'?'倍率為影像估測，僅供視覺檢查':'使用固定參考倍率'}。${autoReview.scope==='component'?'局部比對不驗證元件在整頁的位置。':'整頁使用共同倍率與位移。'} 覆蓋 ${(autoReview.coverage*100).toFixed(1)}%。` : `${applied.webRatioKnown?'使用手動確認倍率；框選尺寸屬估測。':'網頁倍率未確認：僅供視覺檢查，不宣稱精確 CSS 尺寸。'} 網頁位移 X ${applied.offsetX} / Y ${applied.offsetY}。`,metadata:()=>({autoAlignment:autoReview,originals:Object.fromEntries(['a','b'].map(k=>[k,originals[k]?{name:originals[k].name,width:originals[k].width,height:originals[k].height}:null])),crops:{...crops},...applied,coordinateSystem:'Aligned comparison canvas; crop rectangles use original source pixels',manualCropMeasurements:true})};
   })();
 
 

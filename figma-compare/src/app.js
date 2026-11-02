@@ -5,7 +5,7 @@
   const state = { a: null, b: null, width: 0, height: 0, bWidth: 0, bHeight: 0, mode: 'side', blend: 50, threshold: 16, sizeMode: 'original', region: null, ignores: [], tool: null, draft: null, result: null, scale: 1, busy: false };
   const baseA = document.createElement('canvas'), baseB = document.createElement('canvas'), diff = document.createElement('canvas');
   let workbench;
-  let dataA, dataB, pending, toastTimer, loadSequence = { a: 0, b: 0 };
+  let dataA, dataB, pending, toastTimer, loadSequence = { a: 0, b: 0 }, loadPending = {a:false,b:false};
   const number = n => n.toLocaleString('zh-TW');
   const ctx = c => c.getContext('2d', { willReadFrequently: true });
   function toast(message) { $('toast').textContent = message; $('toast').hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => { $('toast').hidden = true; }, 5500); }
@@ -23,6 +23,7 @@
   async function importFile(file, key) {
     if (!file) return;
     const sequence = ++loadSequence[key];
+    loadPending[key]=true;workbench?.loadingStarted();
     let url;
     try {
       if (!/\.(png|jpe?g|webp)$/i.test(file.name) || (file.type && !['image/png', 'image/jpeg', 'image/webp'].includes(file.type))) throw new Error('請使用 PNG、JPG 或 WebP 圖片。');
@@ -40,6 +41,7 @@
       resetRegions(); resetApproval(); updateSource(key); preparePair();
       toast(`${key === 'a' ? '設計稿' : '網頁截圖'}已加入`); return true;
     } catch (e) { if (url) URL.revokeObjectURL(url); if (sequence === loadSequence[key]) toast(e.name === 'EncodingError' ? '無法解碼這張圖片，請確認檔案沒有損毀。' : e.message || '無法讀取圖片，請確認檔案沒有損毀。'); }
+    finally{if(sequence===loadSequence[key]){loadPending[key]=false;workbench?.loadingFinished();}}
   }
   function updateSource(key) {
     const source = state[key], suffix = key.toUpperCase();
@@ -74,7 +76,7 @@
     $('canvasSize').textContent = `${state.width} × ${state.height}`;
     const notices = workbench ? [workbench.notice()] : [];
     if (state.sizeMode === 'width' && state.a.width !== state.b.width) notices.push(`網頁圖已按 ${Math.round(state.bWidth / state.b.width * 10000)/100}% 等比例縮放；插值會影響像素色差。`);
-    if (state.a.width !== state.bWidth || state.a.height !== state.bHeight) notices.push(`尺寸不一致：設計稿 ${state.a.width} × ${state.a.height}，網頁 ${state.bWidth} × ${state.bHeight}。保留各自尺寸，單側缺失區計入差異。`);
+    if (state.a.width !== state.bWidth || state.a.height !== state.bHeight) notices.push(`尺寸不一致：設計稿 ${state.a.width} × ${state.a.height}，網頁 ${state.bWidth} × ${state.bHeight}。保留各自尺寸，單側缺失區另行標示與統計。`);
     $('dimensionNotice').textContent = notices.join(' '); $('dimensionNotice').hidden = notices.length === 0;
     applyZoom(); draw(); calculate();
   }
@@ -85,8 +87,12 @@
     $('ratio').textContent = '…'; $('changed').textContent = '…'; $('canvasStatus').textContent = '正在計算像素差異…';
     pending = setTimeout(() => {
       try {
-        const result = PixelCompare.compare({ a: dataA, b: dataB, width: state.width, height: state.height, threshold: state.threshold, region: state.region, ignores: state.ignores, aSize: {x:state.ax,y:state.ay,width:state.a.width,height:state.a.height}, bSize:{x:state.bx,y:state.by,width:state.bWidth,height:state.bHeight} });
-        state.result = result; ctx(diff).putImageData(new ImageData(result.data,state.width,state.height),0,0);
+        const result = PixelCompare.compare({ a: dataA, b: dataB, width: state.width, height: state.height, threshold: state.threshold, region: state.region, ignores: state.ignores, separateMissing:true, bValid:state.b.validRect ? {...state.b.validRect,x:state.b.validRect.x+state.bx,y:state.b.validRect.y+state.by}:null, aSize: {x:state.ax,y:state.ay,width:state.a.width,height:state.a.height}, bSize:{x:state.bx,y:state.by,width:state.bWidth,height:state.bHeight} });
+        state.result = result;
+        $('coverageNotice').hidden=!result.missing;
+        $('coverageNotice').textContent='未擷取／無對應範圍 '+number(result.missing)+' px（網頁缺少 '+number(result.missingWeb)+'、設計缺少 '+number(result.missingReference)+'）。斜線區未計入像素差異比例，不能視為完整驗收。';
+        $('approved').disabled=!!result.missing || !!(state.b.validRect && state.b.validRect.width*state.b.validRect.height < state.b.width*state.b.height);
+        ctx(diff).putImageData(new ImageData(result.data,state.width,state.height),0,0);
         $('ratio').innerHTML = result.ratio === null ? '—' : `${(result.ratio * 100).toFixed(2)}<small>%</small>`;
         $('changed').textContent = number(result.changed);
         $('compared').textContent = result.compared ? `共 ${number(result.compared)} 個有效比較像素` : '沒有有效比較像素，請調整範圍';
@@ -105,7 +111,7 @@
     $('modeControls').hidden = !['overlay','wipe'].includes(mode);
     $('blendLabel').textContent = mode === 'wipe' ? '分界線位置' : '網頁透明度';
     $('modeHelp').textContent = mode === 'wipe' ? '左側設計稿，右側網頁；可直接拖曳圖片' : '設計稿在下方，網頁在上方';
-    $('captionA').textContent = {side:'Figma 設計稿',overlay:'設計稿 + 網頁疊圖',wipe:'Figma 設計稿 ↔ 實際網頁',diff:'差異圖 · 粉紅色為差異像素'}[mode];
+    $('captionA').textContent = {side:'Figma 設計稿',overlay:'設計稿 + 網頁疊圖',wipe:'Figma 設計稿 ↔ 實際網頁',diff:'差異圖 · 粉紅為差異，斜線為未擷取'}[mode];
     applyZoom(); draw(); updateCursor();
   }
   function applyZoom() {
@@ -137,6 +143,11 @@
     for (const id of ['marksA','marksB']) {
       const svg = $(id); svg.replaceChildren(); svg.setAttribute('viewBox',`0 0 ${state.width} ${state.height}`);
       const stroke = 1.5 / state.scale;
+      if(state.b.validRect){
+        const v=state.b.validRect,x=v.x+state.bx,y=v.y+state.by,w=v.width,h=v.height;
+        const defs=svgNode('defs',{}),pat=svgNode('pattern',{id:'missing-'+id,width:12,height:12,patternUnits:'userSpaceOnUse'});pat.append(svgNode('path',{d:'M-3 3L3 -3M0 12L12 0M9 15L15 9',stroke:'#c38b39','stroke-width':2,opacity:.65}));defs.append(pat);svg.append(defs);
+        svg.append(svgNode('path',{d:`M0 0H${state.width}V${state.height}H0Z M${x} ${y}H${x+w}V${y+h}H${x}Z`,'fill-rule':'evenodd',fill:'url(#missing-'+id+')'}));
+      }
       if (state.region) {
         const {x,y,width:w,height:h} = state.region;
         svg.append(svgNode('path',{d:`M0 0H${state.width}V${state.height}H0Z M${x} ${y}H${x+w}V${y+h}H${x}Z`,'fill-rule':'evenodd',fill:'#263b34',opacity:'.17'}));
@@ -181,7 +192,7 @@
   function report() {
     const r=state.result;
     const source=s=>({name:s.name,width:s.width,height:s.height,bytes:s.fileBytes,demo:s.demo});
-    return {schemaVersion:2,alignment:workbench?.metadata(),tool:'Framecheck',createdAt:new Date().toISOString(),reference:source(state.a),web:source(state.b),canvas:{width:state.width,height:state.height},settings:{threshold:state.threshold,algorithm:'max RGB channel delta > threshold; alpha composited on white; missing source area is always changed',sizeMode:state.sizeMode,effectiveWebSize:{width:state.bWidth,height:state.bHeight},region:state.region,ignores:state.ignores},result:{changed:r.changed,compared:r.compared,ignored:r.ignored,ratio:r.ratio,bounds:r.bounds},review:{approved:$('approved').checked,note:$('reviewNote').value},notice:'像素差異比例不等於設計還原度分數。忽略區域與比較範圍以合成畫布像素為單位。'};
+    return {schemaVersion:3,alignment:workbench?.metadata(),tool:'Framecheck',createdAt:new Date().toISOString(),reference:source(state.a),web:source(state.b),canvas:{width:state.width,height:state.height},settings:{threshold:state.threshold,algorithm:'max RGB channel delta > threshold; alpha composited on white; missing source area counted separately; ratio uses overlapping pixels',sizeMode:state.sizeMode,effectiveWebSize:{width:state.bWidth,height:state.bHeight},region:state.region,ignores:state.ignores},result:{changed:r.changed,compared:r.compared,ignored:r.ignored,ratio:r.ratio,bounds:r.bounds,missing:r.missing,missingReference:r.missingReference,missingWeb:r.missingWeb},review:{approved:$('approved').checked,note:$('reviewNote').value},notice:'像素差異比例不等於設計還原度分數。忽略區域與比較範圍以合成畫布像素為單位。'};
   }
   function drawDemo(variant) {
     const c=document.createElement('canvas');c.width=960;c.height=680;const x=ctx(c);
@@ -198,6 +209,7 @@
     return c;
   }
   async function demo() {
+    loadPending.a=loadPending.b=false;
     const sequence = { a: ++loadSequence.a, b: ++loadSequence.b };
     try {
       const pair=await Promise.all([false,true].map(async variant=>{const canvas=drawDemo(variant);const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));return {image:canvas,width:canvas.width,height:canvas.height,name:variant?'demo-web.png':'demo-design.png',url:URL.createObjectURL(blob),fileBytes:blob.size,demo:true};}));
