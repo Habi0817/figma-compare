@@ -77,6 +77,73 @@ function verify(search,templ,c){
   }
   return {good,visible,total,regions};
 }
+
+// Feature descriptors tolerate changed titles and independently reflowed sections.
+// Fit only b = scale * a + translation. No rotation, shear, or perspective warp.
+function featureAnchors(search,templ,fixed){
+  if(!cv.ORB||!cv.BFMatcher)return [];
+  const qa=Math.min(2,1400/Math.max(templ.cols,templ.rows)),qb=Math.min(2,1400/Math.max(search.cols,search.rows));
+  const a=resize(templ,Math.round(templ.cols*qa),Math.round(templ.rows*qa)),b=resize(search,Math.round(search.cols*qb),Math.round(search.rows*qb));
+  const detector=new cv.ORB(2200,1.15,12,15,0,2,cv.ORB_HARRIS_SCORE,31,8),matcher=new cv.BFMatcher(cv.NORM_HAMMING,false);
+  const ka=new cv.KeyPointVector(),kb=new cv.KeyPointVector(),da=new cv.Mat(),db=new cv.Mat(),mask=new cv.Mat(),ab=new cv.DMatchVectorVector(),ba=new cv.DMatchVectorVector();
+  try{
+    detector.detectAndCompute(a,mask,ka,da);detector.detectAndCompute(b,mask,kb,db);
+    if(da.rows<8||db.rows<8)return [];
+    matcher.knnMatch(da,db,ab,2);matcher.knnMatch(db,da,ba,2);
+    const reverse=new Map();
+    for(let i=0;i<ba.size();i++){const v=ba.get(i);try{if(v.size()>=2){const m=v.get(0),n=v.get(1);if(m.distance<.8*n.distance)reverse.set(m.queryIdx,m.trainIdx);}}finally{v.delete();}}
+    const pairs=[];
+    for(let i=0;i<ab.size();i++){
+      const v=ab.get(i);
+      try{if(v.size()<2)continue;const m=v.get(0),n=v.get(1);if(m.distance>=70||m.distance>=.78*n.distance||reverse.get(m.trainIdx)!==m.queryIdx)continue;
+        const p=ka.get(m.queryIdx),q=kb.get(m.trainIdx);let angle=Math.abs(p.angle-q.angle);angle=Math.min(angle,360-angle);if(angle>18)continue;
+        pairs.push({ax:p.pt.x/qa,ay:p.pt.y/qa,bx:q.pt.x/qb,by:q.pt.y/qb,distance:m.distance});
+      }finally{v.delete();}
+    }
+    const pool=pairs.sort((x,y)=>x.distance-y.distance).slice(0,180),out=[];
+    const tolerance=s=>Math.max(2,1.6*s);
+    const inliers=(c,points)=>points.filter(p=>Math.hypot(p.bx-c.x-p.ax*c.scale,p.by-c.y-p.ay*c.scale)<=tolerance(c.scale));
+    const fit=points=>{
+      const avg=k=>points.reduce((n,p)=>n+p[k],0)/points.length,ax=avg('ax'),ay=avg('ay'),bx=avg('bx'),by=avg('by');
+      const den=points.reduce((n,p)=>n+(p.ax-ax)**2+(p.ay-ay)**2,0);
+      const scale=fixed||points.reduce((n,p)=>n+(p.ax-ax)*(p.bx-bx)+(p.ay-ay)*(p.by-by),0)/den;
+      return {scale,x:bx-scale*ax,y:by-scale*ay};
+    };
+    let remaining=pool;
+    for(let round=0;round<3&&remaining.length>=8;round++){
+      let best=[];
+      // Deterministic pair hypotheses make failures reproducible in tests.
+      for(let i=0;i<remaining.length;i++)for(let j=i+1;j<remaining.length;j++){
+        const p=remaining[i],q=remaining[j],dx=q.ax-p.ax,dy=q.ay-p.ay,den=dx*dx+dy*dy;if(den<24*24)continue;
+        const scale=fixed||((q.bx-p.bx)*dx+(q.by-p.by)*dy)/den;if(!Number.isFinite(scale)||scale<(fixed?.1:.25)||scale>(fixed?8:4))continue;
+        const c={scale,x:p.bx-p.ax*scale,y:p.by-p.ay*scale};const support=inliers(c,remaining);
+        if(support.length>best.length)best=support;
+      }
+      if(best.length<8)break;
+      let c=fit(best);for(let i=0;i<3;i++){best=inliers(c,remaining);if(best.length<8)break;c=fit(best);}if(best.length<8)break;
+      remaining=remaining.filter(p=>!best.includes(p));
+      const xs=best.map(p=>p.ax),ys=best.map(p=>p.ay),x=Math.min(...xs),y=Math.min(...ys),w=Math.max(...xs)-x,h=Math.max(...ys)-y;
+      const cells=new Set(best.map(p=>Math.floor(p.ax/12)+','+Math.floor(p.ay/12)));
+      if(w<20||h<20||cells.size<5||!Number.isFinite(c.scale)||c.scale<(fixed?.1:.25)||c.scale>(fixed?8:4))continue;
+      const pad=12,anchorRect={x:Math.max(0,Math.floor(x-pad)),y:Math.max(0,Math.floor(y-pad)),width:0,height:0};
+      anchorRect.width=Math.min(templ.cols,Math.ceil(x+w+pad))-anchorRect.x;anchorRect.height=Math.min(templ.rows,Math.ceil(y+h+pad))-anchorRect.y;
+      const residual=best.reduce((n,p)=>n+Math.hypot(p.bx-c.x-p.ax*c.scale,p.by-c.y-p.ay*c.scale),0)/best.length;
+      // Corroborate descriptors with small image patches. This does not certify
+      // surrounding text/layout; that remains visible as a difference.
+      let checked=0,matched=0;const seen=new Set();
+      for(const p of best){const cell=Math.floor(p.ax/20)+','+Math.floor(p.ay/20);if(seen.has(cell))continue;seen.add(cell);
+        const size=24,tx=Math.round(p.ax-size/2),ty=Math.round(p.ay-size/2),bx=Math.round(c.x+tx*c.scale),by=Math.round(c.y+ty*c.scale),bw=Math.round(size*c.scale);
+        if(tx<0||ty<0||tx+size>templ.cols||ty+size>templ.rows||bx<0||by<0||bx+bw>search.cols||by+bw>search.rows)continue;
+        const t=templ.roi(new cv.Rect(tx,ty,size,size)),r=search.roi(new cv.Rect(bx,by,bw,bw));
+        try{const hit=peaks(r,t,c.scale,1)[0];checked++;if(hit&&hit.score>=.58)matched++;}finally{t.delete();r.delete();}
+        if(checked>=16)break;
+      }
+      if(checked<4||matched<Math.max(4,Math.ceil(checked*.55)))continue;
+      out.push({...c,score:matched/checked,localOnly:true,method:'orb-scale-translation',anchorRect,evidence:{inliers:best.length,cells:cells.size,residual,patchesMatched:matched,patchesChecked:checked},points:best.slice(0,40).map(p=>({x:p.ax,y:p.ay}))});
+    }
+    return out.sort((a,b)=>b.evidence.inliers-a.evidence.inliers);
+  }finally{[a,b,detector,matcher,ka,kb,da,db,mask,ab,ba].forEach(m=>m.delete());}
+}
 self.onmessage=async event=>{
   const {id,a,b,fixed,whole}=event.data;let ta,sb;
   try{
@@ -101,7 +168,10 @@ self.onmessage=async event=>{
       if(c.anchor&&evidence.good<2)continue;
       candidates.push({...c,evidence});
     }
-    self.postMessage({id,candidates:unique(candidates,ta.cols,ta.rows,3),done:true});
+    const accepted=unique(candidates,ta.cols,ta.rows,3);
+    let localCandidates=[];
+    if(!accepted.length){self.postMessage({id,progress:92,label:'改用局部特徵尋找共同插畫／圖示…'});localCandidates=featureAnchors(sb,ta,fixed);}
+    self.postMessage({id,candidates:accepted,localCandidates,diagnosis:accepted.length?'matched':localCandidates.length?'local-only':'no-match',done:true});
   }catch(e){self.postMessage({id,error:typeof e==='number'?'影像處理失敗，請縮小搜尋範圍或使用手動對齊。':e.message||String(e)});}
   finally{ta?.delete();sb?.delete();}
 };

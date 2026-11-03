@@ -17,6 +17,7 @@
     }
     function refresh(){
       $('autoSearch').disabled=!!autoWorker||loadPending.a||loadPending.b||!originals.a||!originals.b;
+      $('quickAutoSearch').disabled=$('autoSearch').disabled;
       $('cropA').disabled=!originals.a;$('cropB').disabled=!originals.b;
       $('resetAlignment').disabled=!originals.a&&!originals.b;
       $('applyAlignment').disabled=!hasPair();$('alignTopLeft').disabled=!hasPair();$('alignCenter').disabled=!hasPair();

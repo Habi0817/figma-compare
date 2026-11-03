@@ -36,7 +36,7 @@ const root=path.resolve(__dirname,'..');
   await inputs(await fixture({scale:1}));await page.click('#autoSearch');await page.click('#autoCancel');assert.match(await page.locator('#autoStatus').innerText(),/取消/);await page.waitForTimeout(500);assert.equal(await page.locator('.auto-candidate').count(),0);
   await page.click('#autoSearch');await inputs(await fixture({plain:true}));await page.waitForTimeout(500);assert.equal(await page.locator('.auto-candidate').count(),0);console.log('PASS cancel and replace invalidate workers');
   await inputs(await fixture({scale:1}));await page.selectOption('#autoScope','page');await page.selectOption('#autoMode','fixed');await search();assert.ok(await page.locator('.auto-candidate').count());console.log('PASS full-page distributed verification');
-  await inputs(await fixture({scale:1,reflow:true}));await page.selectOption('#autoMode','fixed');await search();assert.equal(await page.locator('.auto-candidate').count(),0);console.log('PASS full-page reflow rejected');
+  await inputs(await fixture({scale:1,reflow:true}));await page.selectOption('#autoMode','fixed');await search();assert.equal(await page.locator('.auto-candidate:not(.local-candidate)').count(),0);console.log('PASS full-page reflow is not offered as a global alignment');
   await page.selectOption('#autoScope','component');
   for(const opt of [{scale:.25},{scale:4},{scale:.8,large:true}]){
    const f=await fixture(opt);await inputs(f);await search();assert.ok(await page.locator('.auto-candidate').count());await page.locator('.auto-candidate').first().click();
